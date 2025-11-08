@@ -1,0 +1,5 @@
+<resources>
+    <!-- Other string resources -->
+    <color name="white">#FFFFFF</color>
+    <string name="default_notification_channel_id">basic_channel</string>
+</resources>

@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "283187015377",
+    "project_id": "tijaraa-a350b",
+    "storage_bucket": "tijaraa-a350b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:283187015377:android:cb00012428cd8ae298dff0",
+        "android_client_info": {
+          "package_name": "com.tijaraa.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "283187015377-7atfqceodjk7a36uk9o2f43cspp1129u.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.tijaraa.app",
+            "certificate_hash": "f7f5fa5c7a1e29cb7cec5654206b816b8d23bff2"
+          }
+        },
+        {
+          "client_id": "283187015377-93upa60o5vsubemilc346it9e1va0ben.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBfyx2tCFmmgIEJvEV6cEaLAwIuvtMuaco"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "283187015377-93upa60o5vsubemilc346it9e1va0ben.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "283187015377-o5tsrh6iafo3b9b2u1s382peacnjp3oj.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.tijaraa.app"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Background color (optional) -->
+<!--    <item android:drawable="@color/white" />-->
+
+    <!-- Centered logo with extra space -->
+    <item
+        android:width="250dp"
+        android:height="250dp"
+        android:gravity="center">
+        <bitmap
+            android:gravity="center"
+            android:src="@drawable/splashlogo" />
+    </item>
+</layer-list>
+

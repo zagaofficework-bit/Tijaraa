@@ -1,0 +1,88 @@
+import 'dart:io';
+
+import 'package:Tijaraa/data/model/data_output.dart';
+import 'package:Tijaraa/data/model/item/job_application.dart';
+import 'package:Tijaraa/data/model/user/user_model.dart';
+import 'package:Tijaraa/utils/api.dart';
+import 'package:dio/dio.dart';
+import 'package:path/path.dart' as path;
+
+class JobRepository {
+  Future<dynamic> applyJobApplication(
+    Map<String, dynamic> data,
+    File? attachment,
+  ) async {
+    Map<String, dynamic> parameters = {};
+    parameters.addAll(data);
+
+    if (attachment != null) {
+      MultipartFile image = await MultipartFile.fromFile(
+        attachment.path,
+        filename: path.basename(attachment.path),
+      );
+      parameters[Api.resume] = image;
+    }
+
+    Map<String, dynamic> response = await Api.post(
+      url: Api.applyForJobApi,
+      parameter: parameters,
+    );
+
+    return response;
+  }
+
+  Future<DataOutput<JobApplication>> fetchApplications({
+    int? page,
+    required int itemId,
+    required bool isMyJobApplications,
+  }) async {
+    try {
+      Map<String, dynamic> parameters = {
+        if (page != null) Api.page: page,
+        Api.itemId: itemId,
+      };
+
+      Map<String, dynamic> response = await Api.get(
+        url: isMyJobApplications
+            ? Api.myJobApplicationsApi
+            : Api.getJobApplicationsApi,
+        queryParameters: parameters,
+      );
+      if ((response['data']['data'] as List).isNotEmpty) {
+        List<JobApplication> itemList = (response['data']['data'] as List)
+            .map((element) => JobApplication.fromJson(element))
+            .toList();
+
+        return DataOutput(total: itemList.length, modelList: itemList);
+      } else {
+        return DataOutput(total: response['data']['total'] ?? 0, modelList: []);
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Map> changeJobApplicationStatus({
+    required int jobId,
+    required String status,
+  }) async {
+    Map response = await Api.post(
+      url: Api.updateJobApplicationsStatusApi,
+      parameter: {Api.status: status, Api.jobId: jobId},
+    );
+    return response;
+  }
+
+  Future<JobProfileModel?> getUserJobProfile(int userId) async {
+    try {
+      final response = await Api.get(url: "${Api.userJobProfile}/$userId");
+
+      if (response != null && response['data'] != null) {
+        return JobProfileModel.fromJson(response['data']);
+      }
+    } catch (e) {
+      print("Failed to fetch job profile: $e");
+    }
+    return null;
+  }
+}
