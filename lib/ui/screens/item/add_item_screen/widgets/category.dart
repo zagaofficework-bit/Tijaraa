@@ -32,7 +32,9 @@ class CategoryCard extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           color: context.color.secondaryColor,
-          border: Border.all(color: context.color.textLightColor.withValues(alpha: 0.23)),
+          border: Border.all(
+            color: context.color.textLightColor.withValues(alpha: 0.23),
+          ),
           borderRadius: BorderRadius.circular(18),
         ),
         child: Column(
@@ -44,8 +46,11 @@ class CategoryCard extends StatelessWidget {
                   height: MediaQuery.of(context).size.height * 0.11, //94,
                   width: double.infinity,
                   color: context.color.territoryColor.withValues(alpha: 0.1),
-                  child: UiUtils.imageType(url,
-                      fit: BoxFit.fill, color: context.color.territoryColor),
+                  child: UiUtils.imageType(
+                    url,
+                    fit: BoxFit.fill,
+                    color: context.color.territoryColor,
+                  ),
                 ),
               ),
             ] else ...[
@@ -57,26 +62,30 @@ class CategoryCard extends StatelessWidget {
                   child: Center(
                     child: SizedBox(
                       // color: Colors.blue,
-                      width: 48,
-                      height: 48,
-                      child: UiUtils.imageType(url,
-                          fit: BoxFit.cover,
-                          color: context.color.territoryColor),
+                      width: 75,
+                      height: 75,
+                      child: UiUtils.imageType(
+                        url,
+                        fit: BoxFit.cover,
+                        color: context.color.territoryColor,
+                      ),
                     ),
                   ),
                 ),
               ),
             ],
             Expanded(
-                child: Padding(
-                    padding: EdgeInsets.all(10.0),
-                    child: CustomText(
-                      title,
-                      maxLines: 2,
-                      textAlign: TextAlign.center,
-                      color: context.color.textColorDark,
-                      fontSize: context.font.small,
-                    )))
+              child: Padding(
+                padding: EdgeInsets.all(10.0),
+                child: CustomText(
+                  title,
+                  maxLines: 2,
+                  textAlign: TextAlign.center,
+                  color: context.color.textColorDark,
+                  fontSize: context.font.normal,
+                ),
+              ),
+            ),
           ],
         ),
       ),

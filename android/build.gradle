@@ -4,10 +4,10 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        // ✅ Gradle plugin versions compatible with Flutter 3.24+ and SDK 36
         classpath "com.android.tools.build:gradle:8.5.2"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.25"
         classpath "com.google.gms:google-services:4.4.2"
+        classpath "com.google.android.gms:play-services-basement:18.4.0"
     }
 }
 

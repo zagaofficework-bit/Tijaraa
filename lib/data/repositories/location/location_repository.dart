@@ -6,6 +6,9 @@ import 'package:Tijaraa/utils/api.dart';
 import 'package:Tijaraa/utils/constant.dart';
 import 'package:Tijaraa/utils/json_helper.dart';
 
+// Assuming LocationNode, Country, State, City, Area, ApiException,
+// and LeafLocation models/utilities are defined elsewhere.
+
 class LocationRepository {
   factory LocationRepository() => _instance;
 
@@ -68,6 +71,7 @@ class LocationRepository {
     } on Exception catch (e, stack) {
       log(e.toString(), name: 'fetchLocation<$T>');
       log('$stack', name: 'fetchLocation<$T>');
+      // Note: Assuming ApiException is defined
       throw ApiException(e.toString());
     }
   }
@@ -92,8 +96,21 @@ class LocationRepository {
       if (usePaidApi) {
         // final data = await rootBundle.loadString('assets/search_data.json');
         // final response = jsonDecode(data) as Map<String, dynamic>;
-        final predictions = (response['data']['predictions'] as List)
-            .cast<Map<String, dynamic>>();
+
+        final predictions =
+            (response['data']['predictions'] as List?)
+                ?.cast<Map<String, dynamic>>() ??
+            [];
+
+        // **FIX/IMPROVEMENT:** Check if predictions list is empty to avoid unexpected logic flow
+        if (predictions.isEmpty) {
+          log(
+            'Paid API search returned no predictions.',
+            name: 'searchLocation',
+          );
+          return List<LeafLocation>.empty();
+        }
+
         final locations = List<LeafLocation>.empty(growable: true);
         for (final json in predictions) {
           final location = LeafLocation(
@@ -115,6 +132,7 @@ class LocationRepository {
     } on Exception catch (e, stack) {
       log(e.toString(), name: 'searchLocation');
       log('$stack', name: 'searchLocation');
+      // Note: Assuming ApiException is defined
       throw ApiException(e.toString());
     }
   }
@@ -142,9 +160,27 @@ class LocationRepository {
       if (usePaidApi) {
         // final data = await rootBundle.loadString('assets/data.json');
         // final response = jsonDecode(data) as Map<String, dynamic>;
-        return _extractLeafLocation(
-          (response['data']['results'] as List).first,
-        );
+
+        final results = (response['data']['results'] as List?);
+
+        // **CRITICAL FIX FOR "Bad state: No element"**
+        if (results == null || results.isEmpty) {
+          // Log the API failure details (e.g., REQUEST_DENIED)
+          final status = response['data']['status'] ?? 'UNKNOWN_STATUS';
+          final errorMsg =
+              response['data']['error_message'] ?? 'No results returned.';
+          log(
+            'Paid API Location Lookup Failed. Status: $status, Message: $errorMsg',
+            name: 'getLocationFromLatLng',
+          );
+
+          // Throw a controlled exception instead of crashing
+          throw ApiException(
+            'Location lookup failed. Status: $status. Please check the backend\'s Google API key configuration.',
+          );
+        }
+
+        return _extractLeafLocation(results.first as Map<String, dynamic>);
       } else {
         return JsonHelper.parseJsonOrNull(
               response['data'] as Map<String, dynamic>,
@@ -155,6 +191,7 @@ class LocationRepository {
     } on Exception catch (e, stack) {
       log(e.toString(), name: 'getLocationFromLatLng');
       log('$stack', name: 'getLocationFromLatLng');
+      // Note: Assuming ApiException is defined
       throw ApiException(e.toString());
     }
   }
@@ -176,10 +213,24 @@ class LocationRepository {
       );
       // final data = await rootBundle.loadString('assets/place_id_data.json');
       //final response = jsonDecode(data) as Map<String, dynamic>;
-      return _extractLeafLocation((response['data']['results'] as List).first);
+
+      final results = (response['data']['results'] as List?);
+
+      // **FIX/IMPROVEMENT:** Check for empty results list
+      if (results == null || results.isEmpty) {
+        final status = response['data']['status'] ?? 'UNKNOWN_STATUS';
+        log(
+          'Place ID Lookup Failed. Status: $status',
+          name: 'getLocationFromPlaceId',
+        );
+        throw ApiException('Place ID lookup failed. Status: $status.');
+      }
+
+      return _extractLeafLocation(results.first as Map<String, dynamic>);
     } on Exception catch (e, stack) {
       log(e.toString(), name: 'getLocationFromPlaceId');
       log('$stack', name: 'getLocationFromPlaceId');
+      // Note: Assuming ApiException is defined
       throw ApiException(e.toString());
     }
   }

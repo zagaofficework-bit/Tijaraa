@@ -1048,18 +1048,22 @@ class _ProfileScreenState extends State<ProfileScreen>
     return Column(
       children: <Widget>[
         if (HiveUtils.isUserAuthenticated())
-          profileMenuWidget("Edit Profile", AppIcons.profile, () {
-            UiUtils.checkUser(
-              onNotGuest: () {
-                Navigator.pushNamed(
-                  context,
-                  Routes.completeProfile,
-                  arguments: {},
-                );
-              },
-              context: context,
-            );
-          }),
+          profileMenuWidget(
+            'editprofile'.translate(context),
+            AppIcons.profile,
+            () {
+              UiUtils.checkUser(
+                onNotGuest: () {
+                  Navigator.pushNamed(
+                    context,
+                    Routes.completeProfile,
+                    arguments: {},
+                  );
+                },
+                context: context,
+              );
+            },
+          ),
         if (HiveUtils.isUserAuthenticated())
           profileMenuWidget("myFeaturedAds", AppIcons.promoted, () async {
             UiUtils.checkUser(
@@ -1095,17 +1099,23 @@ class _ProfileScreenState extends State<ProfileScreen>
             );
           }),
         if (HiveUtils.isUserAuthenticated())
-          profileMenuWidget("My Job Profile", AppIcons.myReviewIcon, () {
-            UiUtils.checkUser(
-              onNotGuest: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const MyJobProfileScreen()),
-                );
-              },
-              context: context,
-            );
-          }),
+          profileMenuWidget(
+            "myJobProfile".translate(context),
+            AppIcons.myReviewIcon,
+            () {
+              UiUtils.checkUser(
+                onNotGuest: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const MyJobProfileScreen(),
+                    ),
+                  );
+                },
+                context: context,
+              );
+            },
+          ),
         if (HiveUtils.isUserAuthenticated())
           profileMenuWidget(
             "myJobApplications",
@@ -1154,14 +1164,18 @@ class _ProfileScreenState extends State<ProfileScreen>
           Navigator.pushNamed(context, Routes.blogsScreenRoute);
         }),
         if (HiveUtils.isUserAuthenticated())
-          profileMenuWidget("Bookmarks", AppIcons.favorites, () {
-            UiUtils.checkUser(
-              onNotGuest: () {
-                Navigator.pushNamed(context, Routes.favoritesScreen);
-              },
-              context: context,
-            );
-          }),
+          profileMenuWidget(
+            "bookmarks".translate(context),
+            AppIcons.favorites,
+            () {
+              UiUtils.checkUser(
+                onNotGuest: () {
+                  Navigator.pushNamed(context, Routes.favoritesScreen);
+                },
+                context: context,
+              );
+            },
+          ),
         profileMenuWidget("faqsLbl", AppIcons.faqsIcon, () {
           Navigator.pushNamed(context, Routes.faqsScreen);
         }),

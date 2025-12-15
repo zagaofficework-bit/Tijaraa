@@ -2,6 +2,7 @@ import 'package:Tijaraa/app/routes.dart';
 import 'package:Tijaraa/data/cubits/subscription/fetch_user_package_limit_cubit.dart';
 import 'package:Tijaraa/ui/screens/widgets/bottom_navigation_bar/hexagon_shape_border.dart';
 import 'package:Tijaraa/utils/constant.dart';
+import 'package:Tijaraa/utils/extensions/extensions.dart';
 import 'package:Tijaraa/utils/ui_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -52,7 +53,7 @@ class DiamondFab extends StatelessWidget {
           ),
           const SizedBox(height: 4), // spacing between FAB and text
           Text(
-            "Post",
+            "post".translate(context),
             style: TextStyle(
               color: Theme.of(context).textTheme.bodyLarge?.color,
               fontWeight: FontWeight.w400,

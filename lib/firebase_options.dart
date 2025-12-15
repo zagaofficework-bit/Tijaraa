@@ -25,51 +25,60 @@ class DefaultFirebaseOptions {
     }
   }
 
-  /// 🔹 WEB configuration
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: "YOUR_WEB_API_KEY",
-    authDomain: "tijaraa-a350b.firebaseapp.com",
-    projectId: "tijaraa-a350b",
-    storageBucket: "tijaraa-a350b.appspot.com",
-    messagingSenderId: "283187015377",
-    appId: "1:283187015377:web:cb00012428cd8ae298dff0",
+    apiKey: 'AIzaSyBe8AlovPXXjJpOonsLzkgwnTastjb5TwQ',
+    appId: '1:746318252750:web:09ac6d4429f37366e51e9f',
+    messagingSenderId: '746318252750',
+    projectId: 'tijaraademo',
+    authDomain: 'tijaraademo.firebaseapp.com',
+    storageBucket: 'tijaraademo.firebasestorage.app',
+    measurementId: 'G-5EH55LGC4Q',
+  );
+
+  /// 🔹 WEB configuration
+
+  static const FirebaseOptions android = FirebaseOptions(
+    apiKey: 'AIzaSyD9Y_YV2giFOLKdvigSodHqgpL4nNd_Zu0',
+    appId: '1:746318252750:android:b0b5af531473e77ce51e9f',
+    messagingSenderId: '746318252750',
+    projectId: 'tijaraademo',
+    storageBucket: 'tijaraademo.firebasestorage.app',
   );
 
   /// 🔹 ANDROID configuration
-  static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyBfyx2tCFmmgIEJvEV6cEaLAwIuvtMuaco',
-    appId: '1:283187015377:android:cb00012428cd8ae298dff0',
-    messagingSenderId: '283187015377',
-    projectId: 'tijaraa-a350b',
-    storageBucket: 'tijaraa-a350b.firebasestorage.app',
+
+  static const FirebaseOptions ios = FirebaseOptions(
+    apiKey: 'AIzaSyAD8gD3TwGQXJnw45U_rermH8cuWQ25pmI',
+    appId: '1:746318252750:ios:5a43da6278453952e51e9f',
+    messagingSenderId: '746318252750',
+    projectId: 'tijaraademo',
+    storageBucket: 'tijaraademo.firebasestorage.app',
+    iosClientId: '746318252750-f7sschoaqh3dt840rpb826d1t6obhbqd.apps.googleusercontent.com',
+    iosBundleId: 'com.tijaraa.app',
   );
 
   /// 🔹 iOS configuration
-  static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'YOUR_IOS_API_KEY',
-    appId: '1:283187015377:ios:4996f3694dd7652498dff0',
-    messagingSenderId: '283187015377',
-    projectId: 'tijaraa-a350b',
-    storageBucket: 'tijaraa-a350b.firebasestorage.app',
-    iosBundleId: 'com.tijaraa.app',
+
+  static const FirebaseOptions macos = FirebaseOptions(
+    apiKey: 'AIzaSyAD8gD3TwGQXJnw45U_rermH8cuWQ25pmI',
+    appId: '1:746318252750:ios:61b1a076efefcb78e51e9f',
+    messagingSenderId: '746318252750',
+    projectId: 'tijaraademo',
+    storageBucket: 'tijaraademo.firebasestorage.app',
+    iosClientId: '746318252750-ici01sothopadgchjvfcinu86n2gcvat.apps.googleusercontent.com',
+    iosBundleId: 'com.tijaraa.tijaraa',
   );
 
   /// 🔹 macOS configuration
-  static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'YOUR_MACOS_API_KEY',
-    appId: 'YOUR_MACOS_APP_ID',
-    messagingSenderId: '283187015377',
-    projectId: 'tijaraa-a350b',
-    storageBucket: 'tijaraa-a350b.firebasestorage.app',
-    iosBundleId: 'com.tijaraa.app',
+
+  static const FirebaseOptions windows = FirebaseOptions(
+    apiKey: 'AIzaSyBe8AlovPXXjJpOonsLzkgwnTastjb5TwQ',
+    appId: '1:746318252750:web:14c450b64b11aa38e51e9f',
+    messagingSenderId: '746318252750',
+    projectId: 'tijaraademo',
+    authDomain: 'tijaraademo.firebaseapp.com',
+    storageBucket: 'tijaraademo.firebasestorage.app',
+    measurementId: 'G-L4M6LYX8P0',
   );
 
-  /// 🔹 Windows configuration
-  static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'YOUR_WEB_API_KEY',
-    appId: 'YOUR_WEB_APP_ID',
-    messagingSenderId: '283187015377',
-    projectId: 'tijaraa-a350b',
-    storageBucket: 'tijaraa-a350b.firebasestorage.app',
-  );
 }

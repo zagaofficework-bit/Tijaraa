@@ -70,7 +70,7 @@ class FavoriteScreenState extends State<FavoriteScreen> {
         appBar: UiUtils.buildAppBar(
           context,
           showBackButton: true,
-          title: "Bookmarks".translate(context),
+          title: "bookmarks".translate(context),
         ),
         body: BlocBuilder<FavoriteCubit, FavoriteState>(
           builder: (context, state) {

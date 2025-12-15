@@ -9,7 +9,6 @@ import 'package:Tijaraa/data/model/system_settings_model.dart';
 import 'package:Tijaraa/ui/screens/widgets/errors/no_internet.dart';
 import 'package:Tijaraa/ui/theme/theme.dart';
 import 'package:Tijaraa/utils/constant.dart';
-import 'package:Tijaraa/utils/custom_text.dart';
 import 'package:Tijaraa/utils/extensions/extensions.dart';
 import 'package:Tijaraa/utils/hive_utils.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -69,12 +68,6 @@ class SplashScreenState extends State<SplashScreen>
       final languageData = Map<String, dynamic>.from(
         HiveUtils.getLanguage() ?? {},
       );
-      // Check the language code that settings api returned the response in
-      // if the language code is equal to the locally stored language then we directly
-      // use the local language.
-      // If the currentCode is not equal then it likely means that the language cached
-      // locally is no longer available on the admin panel, hence in that case we will
-      // fetch the default language data and use that for rest of the app
       if (languageData.isNotEmpty && languageData['code'] == currentCode) {
         context.read<FetchLanguageCubit>().setLanguage(languageData);
         isLanguageLoaded = true;
@@ -171,97 +164,67 @@ class SplashScreenState extends State<SplashScreen>
                 if (mounted) setState(() {});
               }
             },
-            child: BlocListener<FetchSystemSettingsCubit, FetchSystemSettingsState>(
-              listener: (context, state) {
-                if (state is FetchSystemSettingsSuccess) {
-                  Constant.isDemoModeOn = context
-                      .read<FetchSystemSettingsCubit>()
-                      .getSetting(SystemSetting.demoMode);
+            child:
+                BlocListener<
+                  FetchSystemSettingsCubit,
+                  FetchSystemSettingsState
+                >(
+                  listener: (context, state) {
+                    if (state is FetchSystemSettingsSuccess) {
+                      Constant.isDemoModeOn = context
+                          .read<FetchSystemSettingsCubit>()
+                          .getSetting(SystemSetting.demoMode);
 
-                  _getDefaultLanguage(
-                    defaultCode: state.settings['data']['default_language'],
-                    currentCode: state.settings['data']['current_language'],
-                  );
+                      _getDefaultLanguage(
+                        defaultCode: state.settings['data']['default_language'],
+                        currentCode: state.settings['data']['current_language'],
+                      );
 
-                  isSettingsLoaded = true;
-                  if (mounted) setState(() {});
-                }
+                      isSettingsLoaded = true;
+                      if (mounted) setState(() {});
+                    }
 
-                if (state is FetchSystemSettingsFailure) {
-                  log('${state.errorMessage}');
-                }
-              },
-              child: SafeArea(
-                top: false,
-                child: AnnotatedRegion<SystemUiOverlayStyle>(
-                  value: SystemUiOverlayStyle(
-                    statusBarColor: context.color.territoryColor,
-                    statusBarIconBrightness: Brightness.light,
-                    systemNavigationBarIconBrightness: Brightness.light,
-                    systemNavigationBarColor: context.color.territoryColor,
-                  ),
-                  child: Scaffold(
-                    backgroundColor: context.color.territoryColor,
-                    body: Stack(
-                      children: [
-                        // Center content: splash logo and app name
-                        Center(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Container(
-                                alignment: Alignment.center,
-                                width: 300,
-                                height: 300,
-                                // *** REPLACEMENT: Changed SVG to PNG Asset ***
-                                child: Image.asset(
-                                  'assets/svg/Logo/splashlogo.png', // Replace 'app_logo.png' with your actual image path
-                                  fit: BoxFit.contain,
-                                ),
+                    if (state is FetchSystemSettingsFailure) {
+                      log('${state.errorMessage}');
+                    }
+                  },
+                  child: SafeArea(
+                    top: false,
+                    child: AnnotatedRegion<SystemUiOverlayStyle>(
+                      value: SystemUiOverlayStyle(
+                        statusBarColor: context.color.territoryColor,
+                        statusBarIconBrightness: Brightness.light,
+                        systemNavigationBarIconBrightness: Brightness.light,
+                        systemNavigationBarColor: context.color.territoryColor,
+                      ),
+                      child: Scaffold(
+                        backgroundColor: context.color.territoryColor,
+                        body: Stack(
+                          children: [
+                            // Center content: splash logo and app name
+                            Center(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Container(
+                                    alignment: Alignment.center,
+                                    width: 300,
+                                    height: 300,
+                                    child: Image.asset(
+                                      'assets/svg/Logo/logo.png',
+                                      fit: BoxFit.contain,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 10),
+                                ],
                               ),
-                              const SizedBox(height: 10),
-                              // CustomText(
-                              //   AppSettings.applicationName,
-                              //   fontSize: context.font.xxLarge,
-                              //   color: context.color.secondaryColor,
-                              //   textAlign: TextAlign.center,
-                              //   fontWeight: FontWeight.w600,
-                              // ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-
-                        // Bottom content: Made by Zaga Infotech
-                        Positioned(
-                          bottom: 20,
-                          left: 0,
-                          right: 0,
-                          child: Column(
-                            children: [
-                              CustomText(
-                                "Made by",
-                                fontSize: 14,
-                                color: context.color.textColorDark,
-                                textAlign: TextAlign.center,
-                                fontWeight: FontWeight.normal,
-                              ),
-                              const SizedBox(height: 2),
-                              CustomText(
-                                "Zaga Infotech",
-                                fontSize: 16,
-                                color: context.color.secondaryColor,
-                                textAlign: TextAlign.center,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ),
           )
         : NoInternet(
             onRetry: () {

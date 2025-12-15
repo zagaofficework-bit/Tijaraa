@@ -15,7 +15,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart' as urllauncher;
 import 'package:url_launcher/url_launcher.dart';
-// Import your SliderCubit and other necessary dependencies
 
 class SliderWidget extends StatefulWidget {
   const SliderWidget({super.key});
@@ -27,7 +26,7 @@ class SliderWidget extends StatefulWidget {
 class _SliderWidgetState extends State<SliderWidget>
     with AutomaticKeepAliveClientMixin {
   final ValueNotifier<int> _bannerIndex = ValueNotifier(0);
-  late Timer _timer;
+  Timer? _timer;
   int bannersLength = 0;
   final PageController _pageController = PageController();
 
@@ -35,33 +34,31 @@ class _SliderWidgetState extends State<SliderWidget>
   bool get wantKeepAlive => true;
 
   @override
-  void initState() {
-    super.initState();
-    _startAutoSlider();
-  }
-
-  @override
   void dispose() {
     _bannerIndex.dispose();
-    _timer.cancel();
+    _timer?.cancel();
     _pageController.dispose();
     super.dispose();
   }
 
+  /// Start slider only when banners are available
   void _startAutoSlider() {
-    // Set up a timer to automatically change the banner index
+    if (bannersLength == 0) return;
+
+    _timer?.cancel(); // prevent multiple timers
+
     _timer = Timer.periodic(const Duration(seconds: 5), (Timer timer) {
-      final int nextPage = _bannerIndex.value + 1;
-      if (nextPage < bannersLength) {
-        _bannerIndex.value = nextPage;
-      } else {
-        _bannerIndex.value = 0;
+      final nextPage = (_bannerIndex.value + 1) % bannersLength;
+
+      _bannerIndex.value = nextPage;
+
+      if (_pageController.hasClients) {
+        _pageController.animateToPage(
+          nextPage,
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.easeInOut,
+        );
       }
-      _pageController.animateToPage(
-        _bannerIndex.value,
-        duration: const Duration(milliseconds: 500),
-        curve: Curves.easeInOut,
-      );
     });
   }
 
@@ -70,29 +67,28 @@ class _SliderWidgetState extends State<SliderWidget>
     super.build(context);
 
     return BlocBuilder<SliderCubit, SliderState>(
-      builder: (context, SliderState state) {
+      builder: (context, state) {
         if (state is SliderFetchSuccess && state.sliderlist.isNotEmpty) {
-          bannersLength = state.sliderlist.length; // Update bannersLength
+          bannersLength = state.sliderlist.length;
+
+          /// Start slider safely when data updates
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _startAutoSlider();
+          });
+
           return SizedBox(
             height: 170,
             child: PageView.builder(
-              itemCount: bannersLength,
               controller: _pageController,
+              itemCount: bannersLength,
               physics: const BouncingScrollPhysics(),
-              scrollDirection: Axis.horizontal,
-              onPageChanged: (index) {
-                _bannerIndex.value =
-                    index; // Update bannerIndex when page changes manually
-              },
+              onPageChanged: (index) => _bannerIndex.value = index,
               itemBuilder: (context, index) {
-                HomeSlider homeSlider = state.sliderlist[index];
+                final homeSlider = state.sliderlist[index];
                 return InkWell(
-                  onTap: () async {
-                    sliderTap(homeSlider);
-                  },
+                  onTap: () => sliderTap(homeSlider),
                   child: Container(
                     margin: const EdgeInsets.symmetric(horizontal: sidePadding),
-                    width: MediaQuery.of(context).size.width - 16,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
                       color: Colors.grey.shade200,
@@ -101,7 +97,7 @@ class _SliderWidgetState extends State<SliderWidget>
                       borderRadius: BorderRadius.circular(10),
                       child: UiUtils.getImage(
                         homeSlider.image ?? "",
-                        fit: BoxFit.fill,
+                        fit: BoxFit.cover,
                       ),
                     ),
                   ),
@@ -109,9 +105,9 @@ class _SliderWidgetState extends State<SliderWidget>
               },
             ),
           );
-        } else {
-          return SizedBox.shrink();
         }
+
+        return const SizedBox.shrink();
       },
     );
   }
@@ -158,14 +154,12 @@ class _SliderWidgetState extends State<SliderWidget>
           homeSlider.modelId!,
         );
 
-        Future.delayed(Duration.zero, () {
-          LoadingWidgets.hideLoader(context);
-          Navigator.pushNamed(
-            context,
-            Routes.adDetailsScreen,
-            arguments: {"model": dataOutput.modelList[0]},
-          );
-        });
+        LoadingWidgets.hideLoader(context);
+        Navigator.pushNamed(
+          context,
+          Routes.adDetailsScreen,
+          arguments: {"model": dataOutput.modelList[0]},
+        );
       } catch (e) {
         LoadingWidgets.hideLoader(context);
         HelperUtils.showSnackBarMessage(context, e.toString());

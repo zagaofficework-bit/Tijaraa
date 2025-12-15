@@ -410,13 +410,28 @@ class Api {
     required String url,
     Map<String, dynamic>? queryParameters,
     bool? useBaseUrl,
+    // ADDED: Optional custom headers parameter
+    Map<String, dynamic>? customHeaders,
   }) async {
     try {
       String mainurl = ((useBaseUrl ?? true) ? Constant.baseUrl : "") + url;
+
+      // FIX: Combine base headers with custom headers and the critical User-Agent
+      Map<String, dynamic> combinedHeaders = {
+        ...headers(), // Your existing Authorization, Accept, etc.
+        if (customHeaders != null) ...customHeaders,
+        // --- FIX FOR 403 ERROR ---
+        // This makes the request look like it's coming from a standard browser,
+        // which helps bypass Cloudflare/WAF security checks.
+        'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+      };
+
       final response = await _dio.get(
         mainurl,
         queryParameters: queryParameters,
-        options: Options(headers: headers()),
+        // Use the combined headers in the Options object
+        options: Options(headers: combinedHeaders),
       );
 
       if (response.data['error'] == true) {

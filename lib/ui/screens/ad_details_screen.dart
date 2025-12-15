@@ -1,4 +1,3 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:async';
 import 'dart:developer';
 
@@ -2667,8 +2666,23 @@ class AdDetailsScreenState extends CloudState<AdDetailsScreen> {
               children: [
                 ClipRRect(
                   borderRadius: BorderRadius.circular(18),
-                  child: Image.asset('assets/map.png', fit: BoxFit.cover),
+                  child: Image.asset(
+                    'assets/map.png',
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        height: 200,
+                        alignment: Alignment.center,
+                        color: Colors.grey.shade300,
+                        child: const Text(
+                          'Image not found',
+                          style: TextStyle(color: Colors.black54, fontSize: 14),
+                        ),
+                      );
+                    },
+                  ),
                 ),
+
                 Center(
                   child: MaterialButton(
                     onPressed: () {

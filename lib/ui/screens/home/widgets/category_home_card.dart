@@ -8,6 +8,7 @@ class CategoryHomeCard extends StatelessWidget {
   final String title;
   final String url;
   final VoidCallback onTap;
+
   const CategoryHomeCard({
     super.key,
     required this.title,
@@ -51,9 +52,14 @@ class CategoryHomeCard extends StatelessWidget {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(18),
                       border: Border.all(
-                          color: context.color.textLightColor.withValues(alpha: 0.33),
-                          width: 1),
-                      color: context.color.secondaryColor,
+                        color: context.color.textLightColor.withValues(
+                          alpha: 0.33,
+                        ),
+                        width: 1,
+                      ),
+                      color: context.color.territoryColor.withValues(
+                        alpha: 0.1,
+                      ),
                     ),
                     child: Center(
                       child: ClipRRect(
@@ -69,15 +75,17 @@ class CategoryHomeCard extends StatelessWidget {
                   ),
                 ],
                 Expanded(
-                    child: Padding(
-                        padding: const EdgeInsets.all(0.0),
-                        child: CustomText(
-                          title,
-                          textAlign: TextAlign.center,
-                          maxLines: 2,
-                          fontSize: context.font.smaller,
-                          color: context.color.textDefaultColor,
-                        )))
+                  child: Padding(
+                    padding: const EdgeInsets.all(0.0),
+                    child: CustomText(
+                      title,
+                      textAlign: TextAlign.center,
+                      maxLines: 2,
+                      fontSize: context.font.smaller,
+                      color: context.color.textDefaultColor,
+                    ),
+                  ),
+                ),
               ],
             ),
           ),

@@ -40,6 +40,7 @@ class CategoryWidgetHome extends StatelessWidget {
                     return CategoryHomeCard(
                       title: state.categories[index].name!,
                       url: state.categories[index].url!,
+
                       onTap: () {
                         if (state.categories[index].children!.isNotEmpty) {
                           Navigator.pushNamed(

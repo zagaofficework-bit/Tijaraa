@@ -30,11 +30,7 @@ class AppSettings {
 
   static const String applicationName = 'Tijaraa';
   static const String packageName = 'com.tijaraa.app';
-
-  static const String hostUrl = "https://eclassify.wrteam.me";
-  // static const String hostUrl = "http://192.168.29.95:3000/";
-
-  ///API Setting
+  static const String hostUrl = "https://zagainstitute.com/tijaraa/public";
 
   static const int apiDataLoadLimit = 20;
   static const int maxCategoryShowLengthInHomeScreen = 5;
@@ -42,7 +38,7 @@ class AppSettings {
 
   static const int hiddenAPIProcessDelay = 1;
 
-  static const String shareNavigationWebUrl = "eclassifyweb.wrteam.me";
+  static const String shareNavigationWebUrl = "";
 
   static const MapType googleMapType = MapType.normal;
 

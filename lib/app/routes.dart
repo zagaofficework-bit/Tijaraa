@@ -55,7 +55,6 @@ import 'package:Tijaraa/utils/hive_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-/// Class containing all route names and navigation logic
 class Routes {
   /// Authentication Routes
   static const String splash = 'splash';

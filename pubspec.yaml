@@ -121,7 +121,7 @@ dev_dependencies:
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "assets/svg/Logo/logos.png"
+  image_path: "assets/svg/Logo/splashlogo.png"
   remove_alpha_ios: true
 
 
@@ -138,7 +138,8 @@ flutter:
     - assets/lottie/
     - assets/chat_background/
     - assets/languages/language.json
-
+    - assets/map.png
+    - assets/svg/Logo/logo.png
   fonts:
     - family: Manrope
       fonts:

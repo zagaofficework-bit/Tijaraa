@@ -29,8 +29,6 @@ class StripeService {
     String merchantDisplayName = "",
   }) async {
     try {
-      // currContext = bcontext;
-      //setting up Payment Sheet
       await Stripe.instance.initPaymentSheet(
         paymentSheetParameters: SetupPaymentSheetParameters(
           paymentIntentClientSecret: clientSecret,
@@ -39,10 +37,11 @@ class StripeService {
               : ThemeMode.light,
           billingDetailsCollectionConfiguration:
               const BillingDetailsCollectionConfiguration(
-                  address: AddressCollectionMode.full,
-                  email: CollectionMode.always,
-                  name: CollectionMode.always,
-                  phone: CollectionMode.always),
+                address: AddressCollectionMode.full,
+                email: CollectionMode.always,
+                name: CollectionMode.always,
+                phone: CollectionMode.always,
+              ),
           merchantDisplayName: merchantDisplayName,
         ),
       );
@@ -59,19 +58,25 @@ class StripeService {
       await Stripe.instance.presentPaymentSheet();
 
       HelperUtils.showSnackBarMessage(
+        Constant.navigatorKey.currentContext!,
+        "paymentSuccessfullyCompleted".translate(
           Constant.navigatorKey.currentContext!,
-          "paymentSuccessfullyCompleted"
-              .translate(Constant.navigatorKey.currentContext!));
+        ),
+      );
       Future.delayed(Duration.zero, () {
         Navigator.pop(Constant.navigatorKey.currentContext!);
       });
     } on Exception catch (e) {
       if (e is StripeException) {
-        HelperUtils.showSnackBarMessage(Constant.navigatorKey.currentContext!,
-            'Error from Stripe: ${e.error.localizedMessage}');
+        HelperUtils.showSnackBarMessage(
+          Constant.navigatorKey.currentContext!,
+          'Error from Stripe: ${e.error.localizedMessage}',
+        );
       } else {
         HelperUtils.showSnackBarMessage(
-            Constant.navigatorKey.currentContext!, 'Unforeseen error: ${e}');
+          Constant.navigatorKey.currentContext!,
+          'Unforeseen error: ${e}',
+        );
       }
     }
   }

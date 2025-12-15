@@ -672,5 +672,12 @@
   "failedToPickImage": "Failed to pick image",
   "failedToPickDocument": "Failed to pick document",
   "failedToPickAudio": "Failed to pick audio",
-  "failedToPickVideo": "Failed to pick video"
+  "failedToPickVideo": "Failed to pick video",
+  "editProfile": "Edit Profile",
+  "editProfileNote": "Edit Profile Note",
+  "myJobProfile": "My Job Profile",
+  "myJobProfileNote": "My Job Profile Note",
+  "bookmarks": "Bookmarks",
+  "bookmarksNote": "Bookmarks Note",
+  "post": "Post"
 }
