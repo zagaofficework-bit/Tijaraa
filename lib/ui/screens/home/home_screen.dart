@@ -35,6 +35,7 @@ import 'package:Tijaraa/utils/hive_utils.dart';
 import 'package:Tijaraa/utils/notification/awsome_notification.dart';
 import 'package:Tijaraa/utils/notification/notification_service.dart';
 import 'package:Tijaraa/utils/ui_utils.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:permission_handler/permission_handler.dart'
@@ -122,9 +123,17 @@ class HomeScreenState extends State<HomeScreen>
   }
 
   Future<void> markNotificationsAsRead() async {
-    final userId = HiveUtils.getUserId() ?? '';
-    await CloudFirestoreService().markAllAsRead(userId);
-    CloudState.cloudData['unreadCount'] = 0;
+    final userId = HiveUtils.getUserId();
+
+    // Only call Firestore if we have a valid user ID from a successful login
+    if (userId != null &&
+        userId.isNotEmpty &&
+        FirebaseAuth.instance.currentUser != null) {
+      await CloudFirestoreService().markAllAsRead(userId);
+      CloudState.cloudData['unreadCount'] = 0;
+    } else {
+      debugPrint("Firestore call skipped: User is not fully authenticated.");
+    }
   }
 
   @override

@@ -42,7 +42,8 @@ class FirebaseSignalingService {
       if (state == RTCIceConnectionState.RTCIceConnectionStateConnected ||
           state == RTCIceConnectionState.RTCIceConnectionStateCompleted) {
         onCallStateChanged?.call(true);
-      } else if (state == RTCIceConnectionState.RTCIceConnectionStateDisconnected ||
+      } else if (state ==
+              RTCIceConnectionState.RTCIceConnectionStateDisconnected ||
           state == RTCIceConnectionState.RTCIceConnectionStateFailed ||
           state == RTCIceConnectionState.RTCIceConnectionStateClosed) {
         onCallStateChanged?.call(false);
@@ -50,7 +51,8 @@ class FirebaseSignalingService {
       }
     };
   }
-  /// 🔹 Initialize a call (voice or video)
+
+  /// 🔹 Initialize a call (voice or video) - CALLER LOGIC
   Future<void> initCall({
     required bool isVideoCall,
     required MediaStream localStream,
@@ -62,15 +64,10 @@ class FirebaseSignalingService {
     };
 
     _peerConnection = await createPeerConnection(config);
-    _setupPeerConnectionListeners(); // 💡 NEW: Setup listeners here
+    _setupPeerConnectionListeners(); // Setup listeners
 
-    // 💡 IMPROVED: Fetch media stream directly here and set it to the local variable
-    _localStream = await navigator.mediaDevices.getUserMedia({
-      'audio': true,
-      'video': isVideoCall,
-    });
-
-    // 💡 NEW: Expose local stream immediately
+    // Set local stream from the stream passed from UI
+    _localStream = localStream;
     onLocalStream?.call(_localStream!);
 
     // Add local tracks to peer connection
@@ -80,70 +77,80 @@ class FirebaseSignalingService {
 
     await _sendCallMessage(isVideoCall, isOutgoing: true);
 
-    // Listen for ICE candidates (Original Logic)
+    // Listen for ICE candidates and send to Callee's candidate collection
     _peerConnection?.onIceCandidate = (RTCIceCandidate candidate) {
-      if (candidate.candidate != null) { // Only send non-null candidates
+      if (candidate.candidate != null) {
+        // Only send non-null candidates
         _firestore
             .collection('calls')
-            .doc(currentUserId) // Store candidate for the peer to pick up
+            .doc(
+              peerUserId, // Store candidate for the peer (callee) to pick up
+            )
             .collection('candidates')
             .add(candidate.toMap());
       }
     };
 
+    // Create and set offer
     RTCSessionDescription offer = await _peerConnection!.createOffer();
     await _peerConnection!.setLocalDescription(offer);
 
+    // Send offer to Callee's main call document
     await _firestore.collection('calls').doc(peerUserId).set({
       'offer': offer.toMap(),
       'callerId': currentUserId,
       'isVideo': isVideoCall,
-      'timestamp': FieldValue.serverTimestamp(), // 💡 Recommended: Add timestamp
+      'timestamp': FieldValue.serverTimestamp(),
     });
 
-    // Alternative Fix for initCall listener:
-    _firestore.collection('calls').doc(currentUserId).snapshots().listen((doc) {
+    // Listen for Answer from the Callee
+    _firestore.collection('calls').doc(currentUserId).snapshots().listen((
+      doc,
+    ) async {
+      // <-- ADDED async
       if (doc.exists && doc.data()!.containsKey('answer')) {
-        // 1. Assign the nullable peer connection to a local non-nullable variable
         final peer = _peerConnection;
-
-        // 2. Now check if the local variable is non-null and use it.
-        // The Dart analyzer is often happier with this pattern.
-        if (peer != null && peer.iceConnectionState == null) {
-          var answer = RTCSessionDescription(
-            doc['answer']['sdp'],
-            doc['answer']['type'],
-          );
-          peer.setRemoteDescription(answer);
-          onCallStateChanged?.call(true);
+        if (peer != null) {
+          // FIX: Use getRemoteDescription() instead of the undefined currentRemoteDescription
+          final remoteDesc = await peer.getRemoteDescription();
+          if (remoteDesc == null) {
+            // <-- Check if Remote Description is already set
+            var answer = RTCSessionDescription(
+              doc['answer']['sdp'],
+              doc['answer']['type'],
+            );
+            await peer.setRemoteDescription(answer); // <-- ADDED await
+            onCallStateChanged?.call(true);
+          }
         }
       }
     });
-    // Listen for ICE candidates from peer (Original Logic)
+
+    // Listen for ICE candidates from peer (Callee)
     _firestore
         .collection('calls')
         .doc(currentUserId)
         .collection('candidates')
         .snapshots()
         .listen((snapshot) {
-      for (var change in snapshot.docChanges) {
-        if (change.type == DocumentChangeType.added) {
-          var data = change.doc.data()!;
-          _peerConnection?.addCandidate(
-            RTCIceCandidate(
-              data['candidate'],
-              data['sdpMid'],
-              data['sdpMLineIndex'],
-            ),
-          );
-          // Clean up candidate from collection after adding
-          change.doc.reference.delete();
-        }
-      }
-    });
+          for (var change in snapshot.docChanges) {
+            if (change.type == DocumentChangeType.added) {
+              var data = change.doc.data()!;
+              _peerConnection?.addCandidate(
+                RTCIceCandidate(
+                  data['candidate'],
+                  data['sdpMid'],
+                  data['sdpMLineIndex'],
+                ),
+              );
+              // Clean up candidate from collection after adding
+              change.doc.reference.delete();
+            }
+          }
+        });
   }
 
-  /// 🔹 Answer incoming call
+  /// 🔹 Answer incoming call - CALLEE LOGIC
   Future<void> answerCall(Map<String, dynamic> offerData) async {
     final config = {
       'iceServers': [
@@ -152,27 +159,27 @@ class FirebaseSignalingService {
     };
 
     _peerConnection = await createPeerConnection(config);
-    _setupPeerConnectionListeners(); // 💡 NEW: Setup listeners here
+    _setupPeerConnectionListeners(); // Setup listeners
 
-    // 💡 Fixed: Fetch local media stream for the answerer
+    // Fixed: Fetch local media stream for the answerer
     _localStream = await navigator.mediaDevices.getUserMedia({
       'audio': true,
       'video': offerData['isVideo'],
     });
 
-    onLocalStream?.call(_localStream!); // 💡 NEW: Expose local stream
+    onLocalStream?.call(_localStream!); // Expose local stream
 
     // Add local tracks to peer connection
     for (var track in _localStream!.getTracks()) {
       _peerConnection?.addTrack(track, _localStream!);
     }
 
-    // Listen for ICE candidates and send to peerUserId (Original Logic)
+    // Listen for ICE candidates and send to Caller's candidate collection
     _peerConnection?.onIceCandidate = (candidate) {
       if (candidate.candidate != null) {
         _firestore
             .collection('calls')
-            .doc(peerUserId)
+            .doc(peerUserId) // Write candidate to the Caller's document
             .collection('candidates')
             .add(candidate.toMap());
       }
@@ -185,35 +192,39 @@ class FirebaseSignalingService {
     );
     await _peerConnection!.setRemoteDescription(offer);
 
+    // CRITICAL FIX RESTORED: Add a slight delay to allow the candidate handlers to attach
+    await Future.delayed(const Duration(milliseconds: 500));
+
     // Create and send answer
     RTCSessionDescription answer = await _peerConnection!.createAnswer();
     await _peerConnection!.setLocalDescription(answer);
 
+    // Send answer to Caller's main call document
     await _firestore.collection('calls').doc(peerUserId).update({
       'answer': answer.toMap(),
     });
 
-    // Listen for ICE candidates from the caller (Original Logic)
+    // Listen for ICE candidates from the caller
     _firestore
         .collection('calls')
         .doc(currentUserId)
         .collection('candidates')
         .snapshots()
         .listen((snapshot) {
-      for (var change in snapshot.docChanges) {
-        if (change.type == DocumentChangeType.added) {
-          var data = change.doc.data()!;
-          _peerConnection?.addCandidate(
-            RTCIceCandidate(
-              data['candidate'],
-              data['sdpMid'],
-              data['sdpMLineIndex'],
-            ),
-          );
-          change.doc.reference.delete();
-        }
-      }
-    });
+          for (var change in snapshot.docChanges) {
+            if (change.type == DocumentChangeType.added) {
+              var data = change.doc.data()!;
+              _peerConnection?.addCandidate(
+                RTCIceCandidate(
+                  data['candidate'],
+                  data['sdpMid'],
+                  data['sdpMLineIndex'],
+                ),
+              );
+              change.doc.reference.delete();
+            }
+          }
+        });
 
     await _sendCallMessage(offerData['isVideo'], isOutgoing: false);
   }
@@ -226,12 +237,21 @@ class FirebaseSignalingService {
       await _firestore.collection('calls').doc(currentUserId).delete();
       await _firestore.collection('calls').doc(peerUserId).delete();
 
-      // 2. Clear candidate collections for both users
-      var callerCandidates = await _firestore.collection('calls').doc(currentUserId).collection('candidates').get();
+      // 2. Clear candidate collections for both users (Note: the rule handles this after read)
+      // We still try to delete in case of failure or if the rule wasn't strictly enforced before.
+      var callerCandidates = await _firestore
+          .collection('calls')
+          .doc(currentUserId)
+          .collection('candidates')
+          .get();
       for (var doc in callerCandidates.docs) {
         await doc.reference.delete();
       }
-      var peerCandidates = await _firestore.collection('calls').doc(peerUserId).collection('candidates').get();
+      var peerCandidates = await _firestore
+          .collection('calls')
+          .doc(peerUserId)
+          .collection('candidates')
+          .get();
       for (var doc in peerCandidates.docs) {
         await doc.reference.delete();
       }
@@ -244,18 +264,16 @@ class FirebaseSignalingService {
     dispose();
     onCallStateChanged?.call(false); // Notify UI of disconnect
   }
+
   /// 🔹 Send a system message to chat (like WhatsApp call logs)
-  // ... (Keep this method as is)
-  Future<void> _sendCallMessage(bool isVideo, {required bool isOutgoing}) async {
+  Future<void> _sendCallMessage(
+    bool isVideo, {
+    required bool isOutgoing,
+  }) async {
     final type = isVideo ? 'video' : 'voice';
     final emoji = isVideo ? '📹' : '📞';
-    final message = isOutgoing
-        ? '$emoji You started a $type call.'
-        : '$emoji $type call from this user.';
 
     try {
-      // NOTE: Your original chat structure was using 'chats' collection directly.
-      // I've kept the original logging structure from your other files for consistency:
       await _firestore.collection('chats').add({
         'senderId': currentUserId,
         'receiverId': peerUserId,
@@ -265,15 +283,14 @@ class FirebaseSignalingService {
             ? 'You ${type} called this user.'
             : 'This user ${type} called you.',
       });
-
     } catch (e) {
       if (kDebugMode) {
         print('Error sending call message: $e');
       }
     }
   }
+
   /// 🔹 Generate unique chat ID between two users
-  // ... (Keep this method as is, though it's currently unused with your 'chats.add' structure)
   String _getChatId(String user1, String user2) {
     return user1.hashCode <= user2.hashCode
         ? '${user1}_$user2'

@@ -1099,23 +1099,17 @@ class _ProfileScreenState extends State<ProfileScreen>
             );
           }),
         if (HiveUtils.isUserAuthenticated())
-          profileMenuWidget(
-            "myJobProfile".translate(context),
-            AppIcons.myReviewIcon,
-            () {
-              UiUtils.checkUser(
-                onNotGuest: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const MyJobProfileScreen(),
-                    ),
-                  );
-                },
-                context: context,
-              );
-            },
-          ),
+          profileMenuWidget("myJobProfile", AppIcons.myReviewIcon, () {
+            UiUtils.checkUser(
+              onNotGuest: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const MyJobProfileScreen()),
+                );
+              },
+              context: context,
+            );
+          }),
         if (HiveUtils.isUserAuthenticated())
           profileMenuWidget(
             "myJobApplications",

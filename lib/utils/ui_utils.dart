@@ -223,7 +223,7 @@ class UiUtils {
         width: width,
         height: height,
         child: Image.asset(
-          'assets/svg/Logo/splashlogo.png', // Replace 'app_logo.png' with your actual image path
+          'assets/svg/Logo/splashlogo.png',
           fit: BoxFit.contain,
           width: width ?? 70,
           height: height ?? 70,

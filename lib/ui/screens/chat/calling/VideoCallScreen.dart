@@ -1,6 +1,6 @@
 import 'package:Tijaraa/data/cubits/chat/firebase_signaling_call.dart';
-import 'package:Tijaraa/utils/hive_utils.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart'; // <<< ADDED
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 
@@ -37,14 +37,28 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
   bool _isFrontCamera = true;
   bool _isRemoteVideoActive = false;
   bool _isCallActive = false;
+  late String _currentUserId; // <<< ADDED to store Firebase UID
 
   @override
   void initState() {
     super.initState();
     initRenderers();
-    final currentUser = HiveUtils.getUserId();
+
+    // CRITICAL FIX: Use the Firebase Authentication UID for security rules
+    final currentUser = FirebaseAuth.instance.currentUser?.uid;
+
+    if (currentUser == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        // Handle unauthenticated state
+        Navigator.of(context).pop();
+      });
+      return;
+    }
+
+    _currentUserId = currentUser; // Store the authenticated UID
+
     signaling = FirebaseSignalingService(
-      currentUserId: currentUser!,
+      currentUserId: _currentUserId, // <<< FIXED
       peerUserId: widget.userId,
     );
 
@@ -77,22 +91,42 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
   }
 
   Future<void> _startVideoCall() async {
-    // 1. Get local audio/video stream
+    // 1. Get local audio/video stream (Required for both Caller and Callee)
     localStream = await navigator.mediaDevices.getUserMedia({
       'audio': true,
       'video': true,
     });
     _localRenderer.srcObject = localStream; // Attach stream to renderer
 
-    // 2. Initialize the call
-    await signaling.initCall(isVideoCall: true, localStream: localStream!);
-
-    // 3. Add call log message (Similar to VoiceCallScreen, keeping it simple here)
+    // 2. Conditional Initialization
     if (widget.isCaller) {
+      // CALLER LOGIC: Start the call and send the offer
+      await signaling.initCall(isVideoCall: true, localStream: localStream!);
       _addCallLog('Video call started.');
+    } else {
+      // CALLEE LOGIC: Listen for the offer in our Firestore document and answer it
+      _firestore.collection('calls').doc(_currentUserId).snapshots().listen((
+        // <<< FIXED: Listen on current user's UID document
+        doc,
+      ) async {
+        if (doc.exists && doc.data() != null) {
+          final data = doc.data()!;
+
+          // CRITICAL: Only answer if an offer exists and no answer has been sent yet
+          if (data.containsKey('offer') && !data.containsKey('answer')) {
+            print("🎉 Callee received Offer, preparing to answer...");
+
+            // The localStream is ready, call the signaling service's answer method
+            await signaling.answerCall(data);
+
+            // Log the call after successfully receiving the offer and answering.
+            _addCallLog('Video call received.');
+          }
+        }
+      });
     }
 
-    // Set initial states
+    // 3. Set initial states
     if (localStream != null) {
       _isMuted = !localStream!.getAudioTracks().first.enabled;
       _isCameraOn = localStream!.getVideoTracks().first.enabled;
@@ -102,7 +136,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
 
   Future<void> _addCallLog(String statusText) async {
     await _firestore.collection('chats').add({
-      'senderId': HiveUtils.getUserId(),
+      'senderId': _currentUserId, // <<< FIXED
       'receiverId': widget.userId,
       'timestamp': FieldValue.serverTimestamp(),
       'type': 'system_call_log',
@@ -134,6 +168,9 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
 
   void _switchCamera() async {
     if (localStream != null) {
+      // Assuming Helper.switchCamera is a utility function you have access to.
+      // If not, replace with the correct WebRTC camera switching logic.
+      // E.g., MediaStreamTrack.switchCamera() if using an updated package.
       await Helper.switchCamera(localStream!.getVideoTracks().first);
       setState(() {
         _isFrontCamera = !_isFrontCamera;
@@ -168,10 +205,9 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
             height: MediaQuery.of(context).size.height,
             child: _isRemoteVideoActive
                 ? RTCVideoView(
-              _remoteRenderer,
-              objectFit:
-              RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
-            )
+                    _remoteRenderer,
+                    objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+                  )
                 : _buildCallWaitingPlaceholder(),
           ),
 
@@ -191,15 +227,18 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
                 ),
                 child: _isCameraOn
                     ? RTCVideoView(
-                  _localRenderer,
-                  mirror: _isFrontCamera,
-                  objectFit: RTCVideoViewObjectFit
-                      .RTCVideoViewObjectFitCover,
-                )
+                        _localRenderer,
+                        mirror: _isFrontCamera,
+                        objectFit:
+                            RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+                      )
                     : const Center(
-                  child: Icon(Icons.videocam_off,
-                      color: Colors.white, size: 30),
-                ),
+                        child: Icon(
+                          Icons.videocam_off,
+                          color: Colors.white,
+                          size: 30,
+                        ),
+                      ),
               ),
             ),
           ),
@@ -221,7 +260,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
                   ),
                   const SizedBox(height: 5),
                   Text(
-                    _isCallActive ? 'Connecting...' : 'Ringing...',
+                    _isCallActive ? 'Connected' : 'Ringing...',
                     style: TextStyle(
                       color: Colors.white.withOpacity(0.7),
                       fontSize: 16,
@@ -309,10 +348,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: color,
-          shape: BoxShape.circle,
-        ),
+        decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         child: Icon(icon, color: iconColor, size: 28),
       ),
     );

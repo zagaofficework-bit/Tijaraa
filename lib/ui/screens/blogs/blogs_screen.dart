@@ -156,7 +156,7 @@ class _BlogsScreenState extends State<BlogsScreen> {
                     blog.image,
                     fit: BoxFit.fill,
                     width: double.infinity,
-                    height: 151,
+                    height: 270,
                   ),
                 ),
               ),

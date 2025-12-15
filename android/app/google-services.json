@@ -1,20 +1,37 @@
 {
   "project_info": {
-    "project_number": "746318252750",
-    "project_id": "tijaraademo",
-    "storage_bucket": "tijaraademo.firebasestorage.app"
+    "project_number": "761011301966",
+    "firebase_url": "https://zagatijaraa-default-rtdb.firebaseio.com",
+    "project_id": "zagatijaraa",
+    "storage_bucket": "zagatijaraa.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:746318252750:android:b0b5af531473e77ce51e9f",
+        "mobilesdk_app_id": "1:761011301966:android:8689398d31bfa044735d1f",
         "android_client_info": {
           "package_name": "com.tijaraa.app"
         }
       },
       "oauth_client": [
         {
-          "client_id": "746318252750-4fu49hmvprht3msgts0j424b0ejk7bua.apps.googleusercontent.com",
+          "client_id": "761011301966-6uqu8jf903bt7mt6lgic27kdbq2r7ce9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.tijaraa.app",
+            "certificate_hash": "cd738cf70ddc0cbbcd2e1e74d7585a6624028be0"
+          }
+        },
+        {
+          "client_id": "761011301966-kejtjifi828i9c1ndvg0q0ls3nse9epd.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.tijaraa.app",
+            "certificate_hash": "84f030b797eedcf7c66ffbd6d5a8e5ced02b1a74"
+          }
+        },
+        {
+          "client_id": "761011301966-u7iqasunu01gand2p3esid3apjb6pue0.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.tijaraa.app",
@@ -22,27 +39,27 @@
           }
         },
         {
-          "client_id": "746318252750-8ek2001iclagqh1oj85u5c27imjcicnf.apps.googleusercontent.com",
+          "client_id": "761011301966-dqftsh7p01470tc20gadtddihkcathk9.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyD9Y_YV2giFOLKdvigSodHqgpL4nNd_Zu0"
+          "current_key": "AIzaSyDjYoRAxS5bn43xJ-ttcLLntvLVtqIKMhY"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "746318252750-8ek2001iclagqh1oj85u5c27imjcicnf.apps.googleusercontent.com",
+              "client_id": "761011301966-dqftsh7p01470tc20gadtddihkcathk9.apps.googleusercontent.com",
               "client_type": 3
             },
             {
-              "client_id": "746318252750-f7sschoaqh3dt840rpb826d1t6obhbqd.apps.googleusercontent.com",
+              "client_id": "761011301966-r43vl7dmg9j7pon3u3mu9jocsfpiefc4.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.tijaraa.app"
+                "bundle_id": "com.tijaraa.tijaraa"
               }
             }
           ]

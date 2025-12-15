@@ -8,7 +8,6 @@ import 'package:Tijaraa/ui/screens/widgets/errors/something_went_wrong.dart';
 import 'package:Tijaraa/ui/screens/widgets/intertitial_ads_screen.dart';
 import 'package:Tijaraa/ui/screens/widgets/shimmer_loading_container.dart';
 import 'package:Tijaraa/ui/theme/theme.dart';
-import 'package:Tijaraa/utils/api.dart';
 import 'package:Tijaraa/utils/custom_text.dart';
 import 'package:Tijaraa/utils/extensions/extensions.dart';
 import 'package:Tijaraa/utils/helper_utils.dart';
@@ -71,17 +70,32 @@ class NotificationsState extends State<Notifications> {
           if (state is FetchNotificationsInProgress) {
             return buildNotificationShimmer();
           }
+
           if (state is FetchNotificationsFailure) {
-            if (state.errorMessage is ApiException) {
-              if (state.errorMessage.error == "no-internet") {
-                return NoInternet(
-                  onRetry: () {
-                    context
-                        .read<FetchNotificationsCubit>()
-                        .fetchNotifications();
-                  },
-                );
-              }
+            // FIX: Access error message safely
+            final errorMessage = state.errorMessage.toString();
+
+            // Check for No Internet
+            if (errorMessage.contains("no-internet")) {
+              return NoInternet(
+                onRetry: () {
+                  context.read<FetchNotificationsCubit>().fetchNotifications();
+                },
+              );
+            }
+
+            // FIX: Check for 401 Unauthenticated/Login Required
+            if (errorMessage.contains("401") ||
+                errorMessage.contains("Unauthenticated")) {
+              return NoDataFound(
+                mainMessage: "pleaseLogin".translate(context), // Corrected
+                subMessage: "loginToSeeNotifications".translate(
+                  context,
+                ), // Corrected
+                onTap: () {
+                  HelperUtils.goToNextPage(Routes.login, context, false);
+                },
+              );
             }
 
             return const SomethingWentWrong();
@@ -95,7 +109,6 @@ class NotificationsState extends State<Notifications> {
                 },
               );
             }
-
             return buildNotificationListWidget(state);
           }
 

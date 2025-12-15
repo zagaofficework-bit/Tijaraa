@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:dotted_border/dotted_border.dart';
 import 'package:Tijaraa/app/routes.dart';
 import 'package:Tijaraa/data/cubits/custom_field/fetch_custom_fields_cubit.dart';
 import 'package:Tijaraa/data/cubits/system/fetch_system_settings_cubit.dart';
@@ -22,6 +21,7 @@ import 'package:Tijaraa/utils/helper_utils.dart';
 import 'package:Tijaraa/utils/hive_utils.dart';
 import 'package:Tijaraa/utils/image_picker.dart';
 import 'package:Tijaraa/utils/ui_utils.dart';
+import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -591,7 +591,7 @@ class _AddItemDetailsState extends CloudState<AddItemDetails>
                   SizedBox(height: 18),
                   CustomText(
                     isDefault
-                        ? "adTitle*".translate(context)
+                        ? "adTitle".translate(context)
                         : "adTitle (${languages[selectedLangIndex]['name']})"
                               .translate(context),
                   ),
@@ -617,7 +617,7 @@ class _AddItemDetailsState extends CloudState<AddItemDetails>
                   SizedBox(height: 15),
                   CustomText(
                     isDefault
-                        ? "descriptionLbl*".translate(context)
+                        ? "descriptionLbl".translate(context)
                         : "descriptionLbl (${languages[selectedLangIndex]['name']})"
                               .translate(context),
                   ),

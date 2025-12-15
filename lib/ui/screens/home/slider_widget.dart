@@ -77,7 +77,7 @@ class _SliderWidgetState extends State<SliderWidget>
           });
 
           return SizedBox(
-            height: 170,
+            height: 270,
             child: PageView.builder(
               controller: _pageController,
               itemCount: bannersLength,
@@ -97,7 +97,7 @@ class _SliderWidgetState extends State<SliderWidget>
                       borderRadius: BorderRadius.circular(10),
                       child: UiUtils.getImage(
                         homeSlider.image ?? "",
-                        fit: BoxFit.cover,
+                        fit: BoxFit.fill,
                       ),
                     ),
                   ),

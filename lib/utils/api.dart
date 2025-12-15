@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:Tijaraa/app/routes.dart';
 import 'package:Tijaraa/data/cubits/chat/blocked_users_list_cubit.dart';
 import 'package:Tijaraa/data/cubits/chat/get_buyer_chat_users_cubit.dart';
 import 'package:Tijaraa/data/cubits/favorite/favorite_cubit.dart';
@@ -51,7 +52,7 @@ class Api {
 
   static String loginApi = "user-signup";
   static String updateProfileApi = "update-profile";
-  static const String userJobProfile = "userJobProfile";
+  static String userJobProfile = "userJobProfile";
   static String getSliderApi = "get-slider";
   static String sendEmailOtp = "send-email-otp";
   static String verifyEmailOtp = "verify-email-otp";
@@ -338,7 +339,9 @@ class Api {
       _isProcessing = true;
       HelperUtils.showSnackBarMessage(
         Constant.navigatorKey.currentContext!,
-        "userIsDeactivated".translate(Constant.navigatorKey.currentContext!),
+        "sessionExpiredPleaseLogin".translate(
+          Constant.navigatorKey.currentContext!,
+        ), // Better
         messageDuration: 3,
         isFloating: true,
       );
@@ -360,10 +363,14 @@ class Api {
         Constant.navigatorKey.currentContext!
             .read<BlockedUsersListCubit>()
             .resetState();
+        final context = Constant.navigatorKey.currentContext!;
+        context.read<UserDetailsCubit>().clear();
         await HiveUtils.clear();
         await HiveUtils.logoutUser(
           Constant.navigatorKey.currentContext!,
-          onLogout: () {},
+          onLogout: () {
+            HelperUtils.goToNextPage(Routes.login, context, true);
+          },
         );
         _isProcessing = false;
       });
@@ -441,15 +448,16 @@ class Api {
     } on DioException catch (e) {
       if (e.response?.statusCode == 401) {
         userExpired();
+        throw ApiException("Unauthenticated");
       }
       if (e.response?.statusCode == 503) {
         throw "server-not-available";
       }
-      throw ApiException(
-        e.error is SocketException
-            ? "no-internet"
-            : "Something went wrong with error ${e.response?.statusCode}",
-      );
+      if (e.type == DioExceptionType.connectionError ||
+          e.error is SocketException) {
+        throw ApiException("no-internet");
+      }
+      throw ApiException("Something went wrong (${e.response?.statusCode})");
     } on ApiException catch (e) {
       throw ApiException(e.errorMessage);
     } catch (e, st) {

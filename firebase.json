@@ -3,28 +3,20 @@
     "platforms": {
       "android": {
         "default": {
-          "projectId": "tijaraademo",
-          "appId": "1:746318252750:android:b0b5af531473e77ce51e9f",
+          "projectId": "zagatijaraa",
+          "appId": "1:761011301966:android:8689398d31bfa044735d1f",
           "fileOutput": "android/app/google-services.json"
-        }
-      },
-      "ios": {
-        "default": {
-          "projectId": "Tijaraa-wrteam",
-          "appId": "1:6343732161:ios:5cc58a2dcfbbb66b2b5d40",
-          "uploadDebugSymbols": false,
-          "fileOutput": "ios/Runner/GoogleService-Info.plist"
         }
       },
       "dart": {
         "lib/firebase_options.dart": {
-          "projectId": "tijaraademo",
+          "projectId": "zagatijaraa",
           "configurations": {
-            "android": "1:746318252750:android:b0b5af531473e77ce51e9f",
-            "ios": "1:746318252750:ios:5a43da6278453952e51e9f",
-            "macos": "1:746318252750:ios:61b1a076efefcb78e51e9f",
-            "web": "1:746318252750:web:09ac6d4429f37366e51e9f",
-            "windows": "1:746318252750:web:14c450b64b11aa38e51e9f"
+            "android": "1:761011301966:android:8689398d31bfa044735d1f",
+            "ios": "1:761011301966:ios:deb2acde02b371ab735d1f",
+            "macos": "1:761011301966:ios:d0470fdf6e8d049c735d1f",
+            "web": "1:761011301966:web:811d7b5d318460f8735d1f",
+            "windows": "1:761011301966:web:4b98ec6180a61022735d1f"
           }
         }
       }

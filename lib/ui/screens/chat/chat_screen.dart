@@ -15,8 +15,6 @@ import 'package:Tijaraa/data/model/chat/chat_user_model.dart';
 import 'package:Tijaraa/data/model/data_output.dart';
 import 'package:Tijaraa/data/model/item/item_model.dart';
 import 'package:Tijaraa/data/repositories/item/item_repository.dart';
-import 'package:Tijaraa/ui/screens/chat/calling/VideoCallScreen.dart';
-import 'package:Tijaraa/ui/screens/chat/calling/VoiceCallScreen.dart';
 import 'package:Tijaraa/ui/screens/chat/chat_audio/widgets/chat_widget.dart';
 import 'package:Tijaraa/ui/screens/chat/chat_audio/widgets/record_button.dart';
 import 'package:Tijaraa/ui/screens/widgets/animated_routes/transparant_route.dart';
@@ -58,7 +56,7 @@ class ChatScreen extends StatefulWidget {
   final String userName;
   final String itemImage;
   final String itemTitle;
-  final String userId; //for which we are messaging
+  final String userId;
   final String itemId;
   final String date;
   final String? status;
@@ -165,8 +163,6 @@ class _ChatScreenState extends State<ChatScreen>
     notificationStreamSubscription.cancel();
     _feedbackController.dispose();
     controller.dispose();
-    showDeleteButton.dispose();
-    selectedMessageId.dispose();
     super.dispose();
   }
 
@@ -374,12 +370,9 @@ class _ChatScreenState extends State<ChatScreen>
     }
   }
 
-  // NOTE: Make sure to import 'package:geolocator/geolocator.dart';
-  // and other necessary dependencies like SendMessageCubit and ChatMessage.
-
   Future<void> _shareLocation() async {
     try {
-      // Check location service status
+      // 1️⃣ Check location service
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
         HelperUtils.showSnackBarMessage(
@@ -389,12 +382,11 @@ class _ChatScreenState extends State<ChatScreen>
         return;
       }
 
-      // Check and request permission
+      // 2️⃣ Permission check
       LocationPermission permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.denied ||
-            permission == LocationPermission.deniedForever) {
+        if (permission == LocationPermission.denied) {
           HelperUtils.showSnackBarMessage(
             context,
             "locationPermissionDenied".translate(context),
@@ -403,40 +395,36 @@ class _ChatScreenState extends State<ChatScreen>
         }
       }
 
-      // Get current position
-      // You might want to show a loading indicator here while fetching position
+      if (permission == LocationPermission.deniedForever) {
+        HelperUtils.showSnackBarMessage(
+          context,
+          "locationPermissionPermanentlyDenied".translate(context),
+        );
+        return;
+      }
+
+      // 3️⃣ Get current position
       final Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
       );
 
-      final double latitude = position.latitude;
-      final double longitude = position.longitude;
+      final double lat = position.latitude;
+      final double lng = position.longitude;
 
-      // 1. Create a Google Maps link using the coordinates. This makes the message clickable.
-      final String mapUrl =
-          "https://www.google.com/maps/search/?api=1&query=$latitude,$longitude";
+      // 4️⃣ Google Maps link (CLICKABLE)
+      final String mapUrl = "https://www.google.com/maps?q=$lat,$lng";
 
-      // 2. Create the message content. We combine a label with the clickable link.
-      // The recipient's ChatMessage widget should be updated to detect if the message
-      // text contains a map URL and render it as a map link/preview.
-      final String locationMessage =
-          "locationShared".translate(context) +
-          "|MAP_LINK|${mapUrl}|${latitude.toStringAsFixed(6)}|${longitude.toStringAsFixed(6)}";
-
-      // Add the location message to the chat stream
+      // 5️⃣ Send ONLY the link
       ChatMessageHandler.add(
         BlocProvider(
           create: (context) => SendMessageCubit(),
           child: ChatMessage(
             key: ValueKey(DateTime.now().toString()),
-            // Send the rich-formatted message
-            message: locationMessage,
+            message: mapUrl,
             senderId: int.parse(HiveUtils.getUserId()!),
             createdAt: DateTime.now().toString(),
             isSentNow: true,
             itemOfferId: widget.itemOfferId,
-            // Since you only use 'message' field for data transfer, we must put all data in it.
-            // If ChatMessage had dedicated 'locationLat' and 'locationLon' fields, they would be used here.
             audio: "",
             file: "",
             updatedAt: DateTime.now().toString(),
@@ -447,16 +435,9 @@ class _ChatScreenState extends State<ChatScreen>
       totalMessageCount++;
       setState(() {});
 
-      // Show success snack bar
-      HelperUtils.showSnackBarMessage(
-        context,
-        "locationShared".translate(context),
-      );
+      HelperUtils.showSnackBarMessage(context, "Location shared successfully");
     } catch (e) {
-      HelperUtils.showSnackBarMessage(
-        context,
-        "locationError".translate(context) + ": $e",
-      );
+      HelperUtils.showSnackBarMessage(context, "Error sharing location: $e");
     }
   }
 
@@ -1224,34 +1205,49 @@ class _ChatScreenState extends State<ChatScreen>
           actions: [
             IconButton(
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => VoiceCallScreen(
-                      userId: widget.userId,
-                      isCaller: true,
-                      userName: widget.userName,
-                      userProfilePicture: widget.profilePicture,
+                // Navigator.push(
+                //   context,
+                //   MaterialPageRoute(
+                //     builder: (context) => VoiceCallScreen(
+                //       userId: widget.userId,
+                //       isCaller: true,
+                //       userName: widget.userName,
+                //       userProfilePicture: widget.profilePicture,
+                //     ),
+                //   ),
+                // );
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text(
+                      '📞 Voice Call is currently under construction. Check logs for ID mapping fix.',
                     ),
+                    duration: Duration(seconds: 2),
                   ),
                 );
               },
               icon: Icon(Icons.call, color: context.color.textDefaultColor),
             ),
 
-
             IconButton(
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => VideoCallScreen(
-                      userId: widget.userId,
-                      isCaller: true,
-
-                      userName: widget.userName,
-                      userProfilePicture: widget.profilePicture,
+                // Navigator.push(
+                //   context,
+                //   MaterialPageRoute(
+                //     builder: (context) => VideoCallScreen(
+                //       userId: widget.userId,
+                //       isCaller: true,
+                //
+                //       userName: widget.userName,
+                //       userProfilePicture: widget.profilePicture,
+                //     ),
+                //   ),
+                // );
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text(
+                      '📹 Video Call is currently under construction. Check logs for ID mapping fix.',
                     ),
+                    duration: Duration(seconds: 2),
                   ),
                 );
               },
@@ -1721,7 +1717,7 @@ class _ChatScreenState extends State<ChatScreen>
         return Align(
           alignment: AlignmentDirectional.topStart,
           child: Container(
-            height: 71,
+            height: 72,
             margin: EdgeInsetsDirectional.only(top: 15, bottom: 15, start: 15),
             padding: EdgeInsets.all(12),
             decoration: BoxDecoration(

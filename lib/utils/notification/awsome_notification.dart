@@ -4,7 +4,6 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
-import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:Tijaraa/app/routes.dart';
 import 'package:Tijaraa/data/cubits/chat/delete_message_cubit.dart';
 import 'package:Tijaraa/data/cubits/chat/get_seller_chat_users_cubit.dart';
@@ -25,6 +24,7 @@ import 'package:Tijaraa/utils/constant.dart';
 import 'package:Tijaraa/utils/helper_utils.dart';
 import 'package:Tijaraa/utils/hive_utils.dart';
 import 'package:Tijaraa/utils/notification/notification_service.dart';
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -36,7 +36,7 @@ class LocalAwesomeNotification {
     requestPermission();
 
     notification.initialize(
-      'resource://mipmap/notification',
+      'resource://mipmap/ic_launcher',
       [
         NotificationChannel(
           channelKey: Constant.notificationChannel,

@@ -16,17 +16,18 @@ class NoDataFound extends StatelessWidget {
   final bool? showBtn;
   final String? btnName;
 
-  const NoDataFound(
-      {super.key,
-      this.onTap,
-      this.height,
-      this.mainMessage,
-      this.subMessage,
-      this.mainMsgStyle,
-      this.subMsgStyle,
-      this.showImage,
-      this.showBtn = false,
-      this.btnName});
+  const NoDataFound({
+    super.key,
+    this.onTap,
+    this.height,
+    this.mainMessage,
+    this.subMessage,
+    this.mainMsgStyle,
+    this.subMsgStyle,
+    this.showImage,
+    this.showBtn,
+    this.btnName,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -40,33 +41,31 @@ class NoDataFound extends StatelessWidget {
             children: [
               if (showImage != false)
                 UiUtils.getSvg(AppIcons.no_data_found, height: height ?? null),
-              const SizedBox(
-                height: 20,
-              ),
+              const SizedBox(height: 20),
               CustomText(
                 mainMessage ?? "nodatafound".translate(context),
                 fontSize: mainMsgStyle ?? context.font.extraLarge,
                 color: context.color.territoryColor,
                 fontWeight: FontWeight.w600,
               ),
-              const SizedBox(
-                height: 14,
-              ),
+              const SizedBox(height: 14),
               CustomText(
                 subMessage ?? "sorryLookingFor".translate(context),
                 fontSize: subMsgStyle ?? context.font.larger,
                 textAlign: TextAlign.center,
               ),
-              if (showBtn!)
+              if (showBtn == true)
                 Padding(
                   padding: const EdgeInsets.only(top: 20.0),
-                  child: UiUtils.buildButton(context,
-                      onPressed: onTap!,
-                      buttonTitle: btnName ?? "",
-                      height: 40,
-                      width: MediaQuery.of(context).size.width / 1.5,
-                      radius: 8),
-                )
+                  child: UiUtils.buildButton(
+                    context,
+                    onPressed: onTap!,
+                    buttonTitle: btnName ?? "",
+                    height: 40,
+                    width: MediaQuery.of(context).size.width / 1.5,
+                    radius: 8,
+                  ),
+                ),
             ],
           ),
         ),

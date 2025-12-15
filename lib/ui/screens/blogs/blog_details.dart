@@ -47,8 +47,8 @@ class BlogDetails extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10),
                 child: SizedBox(
                   width: context.screenWidth,
-                  height: 170,
-                  child: UiUtils.getImage(blog.image!, fit: BoxFit.fill),
+                  height: 270,
+                  child: UiUtils.getImage(blog.image, fit: BoxFit.fill),
                 ),
               ),
               SizedBox(height: 15),

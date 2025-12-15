@@ -1,0 +1,2 @@
+D:/Tijaraa/android/app/.cxx/release/70224h3u/x86_64/CMakeFiles/edit_cache.dir
+D:/Tijaraa/android/app/.cxx/release/70224h3u/x86_64/CMakeFiles/rebuild_cache.dir

@@ -1,5 +1,3 @@
-// GENERATED CODE - DO NOT MODIFY BY HAND
-
 import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, TargetPlatform, kIsWeb;
@@ -26,59 +24,62 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyBe8AlovPXXjJpOonsLzkgwnTastjb5TwQ',
-    appId: '1:746318252750:web:09ac6d4429f37366e51e9f',
-    messagingSenderId: '746318252750',
-    projectId: 'tijaraademo',
-    authDomain: 'tijaraademo.firebaseapp.com',
-    storageBucket: 'tijaraademo.firebasestorage.app',
-    measurementId: 'G-5EH55LGC4Q',
+    apiKey: 'AIzaSyBzhzpDxcyoEpmIp_2OSr9ovZWeNfCcwsE',
+    appId: '1:761011301966:web:811d7b5d318460f8735d1f',
+    messagingSenderId: '761011301966',
+    projectId: 'zagatijaraa',
+    authDomain: 'zagatijaraa.firebaseapp.com',
+    databaseURL: 'https://zagatijaraa-default-rtdb.firebaseio.com',
+    storageBucket: 'zagatijaraa.firebasestorage.app',
+    measurementId: 'G-350S1NW25G',
   );
 
   /// 🔹 WEB configuration
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyD9Y_YV2giFOLKdvigSodHqgpL4nNd_Zu0',
-    appId: '1:746318252750:android:b0b5af531473e77ce51e9f',
-    messagingSenderId: '746318252750',
-    projectId: 'tijaraademo',
-    storageBucket: 'tijaraademo.firebasestorage.app',
+    apiKey: 'AIzaSyDjYoRAxS5bn43xJ-ttcLLntvLVtqIKMhY',
+    appId: '1:761011301966:android:8689398d31bfa044735d1f',
+    messagingSenderId: '761011301966',
+    projectId: 'zagatijaraa',
+    databaseURL: 'https://zagatijaraa-default-rtdb.firebaseio.com',
+    storageBucket: 'zagatijaraa.firebasestorage.app',
   );
 
   /// 🔹 ANDROID configuration
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyAD8gD3TwGQXJnw45U_rermH8cuWQ25pmI',
-    appId: '1:746318252750:ios:5a43da6278453952e51e9f',
-    messagingSenderId: '746318252750',
-    projectId: 'tijaraademo',
-    storageBucket: 'tijaraademo.firebasestorage.app',
-    iosClientId: '746318252750-f7sschoaqh3dt840rpb826d1t6obhbqd.apps.googleusercontent.com',
+    apiKey: 'AIzaSyBfqNXrTNiA4E1MkpTUr1063KZNJ-WS3-g',
+    appId: '1:761011301966:ios:deb2acde02b371ab735d1f',
+    messagingSenderId: '761011301966',
+    projectId: 'zagatijaraa',
+    databaseURL: 'https://zagatijaraa-default-rtdb.firebaseio.com',
+    storageBucket: 'zagatijaraa.firebasestorage.app',
+    iosClientId: '761011301966-t8886ujor9mmjvg08hjf96htari8293l.apps.googleusercontent.com',
     iosBundleId: 'com.tijaraa.app',
   );
 
   /// 🔹 iOS configuration
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyAD8gD3TwGQXJnw45U_rermH8cuWQ25pmI',
-    appId: '1:746318252750:ios:61b1a076efefcb78e51e9f',
-    messagingSenderId: '746318252750',
-    projectId: 'tijaraademo',
-    storageBucket: 'tijaraademo.firebasestorage.app',
-    iosClientId: '746318252750-ici01sothopadgchjvfcinu86n2gcvat.apps.googleusercontent.com',
+    apiKey: 'AIzaSyBfqNXrTNiA4E1MkpTUr1063KZNJ-WS3-g',
+    appId: '1:761011301966:ios:d0470fdf6e8d049c735d1f',
+    messagingSenderId: '761011301966',
+    projectId: 'zagatijaraa',
+    databaseURL: 'https://zagatijaraa-default-rtdb.firebaseio.com',
+    storageBucket: 'zagatijaraa.firebasestorage.app',
+    iosClientId: '761011301966-r43vl7dmg9j7pon3u3mu9jocsfpiefc4.apps.googleusercontent.com',
     iosBundleId: 'com.tijaraa.tijaraa',
   );
 
-  /// 🔹 macOS configuration
-
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyBe8AlovPXXjJpOonsLzkgwnTastjb5TwQ',
-    appId: '1:746318252750:web:14c450b64b11aa38e51e9f',
-    messagingSenderId: '746318252750',
-    projectId: 'tijaraademo',
-    authDomain: 'tijaraademo.firebaseapp.com',
-    storageBucket: 'tijaraademo.firebasestorage.app',
-    measurementId: 'G-L4M6LYX8P0',
+    apiKey: 'AIzaSyBzhzpDxcyoEpmIp_2OSr9ovZWeNfCcwsE',
+    appId: '1:761011301966:web:4b98ec6180a61022735d1f',
+    messagingSenderId: '761011301966',
+    projectId: 'zagatijaraa',
+    authDomain: 'zagatijaraa.firebaseapp.com',
+    databaseURL: 'https://zagatijaraa-default-rtdb.firebaseio.com',
+    storageBucket: 'zagatijaraa.firebasestorage.app',
+    measurementId: 'G-J4ET5MSP7Y',
   );
 
 }

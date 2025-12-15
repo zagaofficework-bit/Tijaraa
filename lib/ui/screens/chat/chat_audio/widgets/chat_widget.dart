@@ -2,9 +2,6 @@
 
 import 'dart:io';
 
-import 'package:any_link_preview/any_link_preview.dart';
-import 'package:audioplayers/audioplayers.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:Tijaraa/data/cubits/chat/send_message.dart';
 import 'package:Tijaraa/data/cubits/system/app_theme_cubit.dart';
 import 'package:Tijaraa/ui/screens/chat/chat_screen.dart';
@@ -16,6 +13,9 @@ import 'package:Tijaraa/utils/extensions/extensions.dart';
 import 'package:Tijaraa/utils/helper_utils.dart';
 import 'package:Tijaraa/utils/hive_utils.dart';
 import 'package:Tijaraa/utils/ui_utils.dart';
+import 'package:any_link_preview/any_link_preview.dart';
+import 'package:audioplayers/audioplayers.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -40,18 +40,19 @@ class ChatMessage extends StatefulWidget {
   final String? messageType;
   final bool? isSentNow;
 
-  const ChatMessage(
-      {super.key,
-      this.id,
-      required this.senderId,
-      required this.itemOfferId,
-      this.message,
-      this.file,
-      this.audio,
-      required this.createdAt,
-      required this.updatedAt,
-      this.messageType,
-      this.isSentNow});
+  const ChatMessage({
+    super.key,
+    this.id,
+    required this.senderId,
+    required this.itemOfferId,
+    this.message,
+    this.file,
+    this.audio,
+    required this.createdAt,
+    required this.updatedAt,
+    this.messageType,
+    this.isSentNow,
+  });
 
   Map toJson() {
     Map data = {};
@@ -72,17 +73,18 @@ class ChatMessage extends StatefulWidget {
 
   factory ChatMessage.fromJson(Map json) {
     var chat = ChatMessage(
-        key: json['key'],
-        id: json['id'],
-        senderId: json['sender_id'],
-        itemOfferId: json['item_offer_id'],
-        message: json['message'],
-        file: json['file'],
-        audio: json['audio'],
-        createdAt: json['created_at'],
-        updatedAt: json['updated_at'],
-        isSentNow: json['is_sent_now'],
-        messageType: json['message_type']);
+      key: json['key'],
+      id: json['id'],
+      senderId: json['sender_id'],
+      itemOfferId: json['item_offer_id'],
+      message: json['message'],
+      file: json['file'],
+      audio: json['audio'],
+      createdAt: json['created_at'],
+      updatedAt: json['updated_at'],
+      isSentNow: json['is_sent_now'],
+      messageType: json['message_type'],
+    );
     return chat;
   }
 
@@ -109,11 +111,11 @@ class ChatWidgetState extends State<ChatMessage>
         if (!(context.read<SendMessageCubit>().state
             is SendMessageInProgress)) {
           context.read<SendMessageCubit>().send(
-                attachment: widget.file,
-                message: widget.message!,
-                itemOfferId: widget.itemOfferId,
-                audio: widget.audio,
-              );
+            attachment: widget.file,
+            message: widget.message!,
+            itemOfferId: widget.itemOfferId,
+            audio: widget.audio,
+          );
           sentMessages.add(messageKey);
         }
       }
@@ -145,30 +147,37 @@ class ChatWidgetState extends State<ChatMessage>
   bool _isLink(String input) {
     ///This will check if text contains link
     final matcher = RegExp(
-        r"(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)");
+      r"(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)",
+    );
     return matcher.hasMatch(input);
   }
 
-  List _replaceLink() {
-    //This function will make part of text where link starts. we put invisible charector so we can split it with it
-    final linkPattern = RegExp(
-        r"(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)");
+  List<String> _replaceLink() {
+    // Allow comma (,) inside URLs — VERY IMPORTANT
+    final RegExp linkPattern = RegExp(
+      r'(https?:\/\/[^\s]+)',
+      caseSensitive: false,
+    );
 
-    ///This is invisible charector [You can replace it with any special charector which generally nobody use]
+    /// Invisible character used only for splitting
     const String substringIdentifier = "‎";
 
-    ///This will find and add invisible charector in prefix and suffix
-    String splitMapJoin = _emptyTextIfAttachmentHasNoCustomText().splitMapJoin(
+    final String text = _emptyTextIfAttachmentHasNoCustomText();
+
+    final String splitMapJoin = text.splitMapJoin(
       linkPattern,
       onMatch: (match) {
         return substringIdentifier + match.group(0)! + substringIdentifier;
       },
-      onNonMatch: (match) {
-        return match;
+      onNonMatch: (nonMatch) {
+        return nonMatch;
       },
     );
-    //finally we split it with invisible charector so it will become list
-    return splitMapJoin.split(substringIdentifier);
+
+    return splitMapJoin
+        .split(substringIdentifier)
+        .where((e) => e.isNotEmpty)
+        .toList();
   }
 
   List<String> _matchAstric(String data) {
@@ -183,7 +192,6 @@ class ChatWidgetState extends State<ChatMessage>
         return p0;
       },
     );
-
 
     return mapJoin.split("‎");
   }
@@ -217,24 +225,29 @@ class ChatWidgetState extends State<ChatMessage>
           child: Column(
             crossAxisAlignment:
                 widget.senderId.toString() == HiveUtils.getUserId()
-                    ? CrossAxisAlignment.end
-                    : CrossAxisAlignment.start,
+                ? CrossAxisAlignment.end
+                : CrossAxisAlignment.start,
             children: [
               Container(
-                constraints:
-                    BoxConstraints(maxWidth: context.screenWidth * 0.74),
+                constraints: BoxConstraints(
+                  maxWidth: context.screenWidth * 0.74,
+                ),
                 decoration: BoxDecoration(
-                    color: selectedMessage == true
-                        ? (widget.senderId.toString() == HiveUtils.getUserId()
-                            ? context.color.territoryColor
-                                .withValues(alpha: 4.5)
-                            : context.color.textLightColor
-                                .withValues(alpha: 0.1))
-                        : (widget.senderId.toString() == HiveUtils.getUserId()
-                            ? context.color.territoryColor
-                                .withValues(alpha: 0.3)
+                  color: selectedMessage == true
+                      ? (widget.senderId.toString() == HiveUtils.getUserId()
+                            ? context.color.territoryColor.withValues(
+                                alpha: 4.5,
+                              )
+                            : context.color.textLightColor.withValues(
+                                alpha: 0.1,
+                              ))
+                      : (widget.senderId.toString() == HiveUtils.getUserId()
+                            ? context.color.territoryColor.withValues(
+                                alpha: 0.3,
+                              )
                             : context.color.secondaryColor),
-                    borderRadius: BorderRadius.circular(8)),
+                  borderRadius: BorderRadius.circular(8),
+                ),
                 child: Wrap(
                   runAlignment: WrapAlignment.end,
                   alignment: WrapAlignment.end,
@@ -246,7 +259,8 @@ class ChatWidgetState extends State<ChatMessage>
                         child: widget.audio != ""
                             ? RecordMessage(
                                 url: widget.audio ?? "",
-                                isSentByMe: widget.senderId.toString() ==
+                                isSentByMe:
+                                    widget.senderId.toString() ==
                                     HiveUtils.getUserId(),
                               )
                             : Column(
@@ -254,119 +268,122 @@ class ChatWidgetState extends State<ChatMessage>
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   if (widget.file != "")
-                                    AttachmentMessage(
-                                      url: widget.file!,
-                                    ),
+                                    AttachmentMessage(url: widget.file!),
 
                                   //This is preview builder for image
                                   ValueListenableBuilder(
-                                      valueListenable: _linkAddNotifier,
-                                      builder: (context, dynamic value, c) {
-                                        if (value == null) {
-                                          return const SizedBox.shrink();
-                                        }
+                                    valueListenable: _linkAddNotifier,
+                                    builder: (context, dynamic value, c) {
+                                      if (value == null) {
+                                        return const SizedBox.shrink();
+                                      }
 
-                                        return FutureBuilder(
-                                          future: AnyLinkPreview.getMetadata(
-                                              link: value),
-                                          builder: (context,
-                                              AsyncSnapshot snapshot) {
-                                            if (snapshot.connectionState ==
-                                                ConnectionState.done) {
-                                              if (snapshot.data == null) {
-                                                return const SizedBox.shrink();
+                                      return FutureBuilder(
+                                        future: AnyLinkPreview.getMetadata(
+                                          link: value,
+                                        ),
+                                        builder:
+                                            (context, AsyncSnapshot snapshot) {
+                                              if (snapshot.connectionState ==
+                                                  ConnectionState.done) {
+                                                if (snapshot.data == null) {
+                                                  return const SizedBox.shrink();
+                                                }
+                                                return LinkPreviw(
+                                                  snapshot: snapshot,
+                                                  link: value,
+                                                );
                                               }
-                                              return LinkPreviw(
-                                                snapshot: snapshot,
-                                                link: value,
-                                              );
-                                            }
-                                            return const SizedBox.shrink();
-                                          },
-                                        );
-                                      }),
+                                              return const SizedBox.shrink();
+                                            },
+                                      );
+                                    },
+                                  ),
                                   SelectableText.rich(
                                     TextSpan(
                                       style: TextStyle(
-                                          color: (isDark &&
-                                                  widget.senderId.toString() !=
-                                                      HiveUtils.getUserId())
-                                              ? context.color.buttonColor
-                                              : context.color.textDefaultColor),
+                                        color:
+                                            (isDark &&
+                                                widget.senderId.toString() !=
+                                                    HiveUtils.getUserId())
+                                            ? context.color.buttonColor
+                                            : context.color.textDefaultColor,
+                                      ),
                                       children: _replaceLink().map((data) {
-                                        //This will add link to msg
+                                        // ================= LOCATION / LINK HANDLING =================
                                         if (_isLink(data)) {
-                                          //This will notify priview object that it has link
                                           _linkAddNotifier.value = data;
                                           _linkAddNotifier.notifyListeners();
 
+                                          final bool isLocationLink =
+                                              data.contains(
+                                                "google.com/maps",
+                                              ) ||
+                                              data.contains("maps.google.com");
+
                                           return TextSpan(
-                                              text: data,
-                                              recognizer: TapGestureRecognizer()
-                                                ..onTap = () async {
-                                                  await launchUrl(
-                                                      Uri.parse(data));
-                                                },
-                                              style: TextStyle(
-                                                  decoration:
-                                                      TextDecoration.underline,
-                                                  color: Colors.blue[800]));
+                                            text: isLocationLink
+                                                ? "📍 Shared location"
+                                                : data,
+                                            recognizer: TapGestureRecognizer()
+                                              ..onTap = () async {
+                                                await launchUrl(
+                                                  Uri.parse(data),
+                                                  mode: LaunchMode
+                                                      .externalApplication,
+                                                );
+                                              },
+                                            style: TextStyle(
+                                              decoration:
+                                                  TextDecoration.underline,
+                                              color: Colors.blue[800],
+                                              fontWeight: isLocationLink
+                                                  ? FontWeight.w600
+                                                  : FontWeight.normal,
+                                            ),
+                                          );
                                         }
-                                        //This will make text bold
+
+                                        // ================= NORMAL / BOLD TEXT HANDLING =================
                                         return TextSpan(
-                                          text: "",
-                                          children:
-                                              _matchAstric(data).map((text) {
-                                            if (text
-                                                    .toString()
-                                                    .startsWith("*") &&
-                                                text.toString().endsWith("*")) {
-                                              return TextSpan(
-                                                  text:
-                                                      text.replaceAll("*", ""),
-                                                  style: TextStyle(
-                                                      color: (isDark &&
-                                                              widget.senderId
-                                                                      .toString() !=
-                                                                  HiveUtils
-                                                                      .getUserId())
-                                                          ? context
-                                                              .color.buttonColor
-                                                          : context.color
-                                                              .textDefaultColor,
-                                                      fontWeight:
-                                                          FontWeight.w800));
-                                            }
+                                          children: _matchAstric(data).map((
+                                            text,
+                                          ) {
+                                            final bool isBold =
+                                                text.startsWith("*") &&
+                                                text.endsWith("*");
 
                                             return TextSpan(
-                                                text: text,
-                                                style: TextStyle(
-                                                    color: (isDark &&
-                                                            widget.senderId
-                                                                    .toString() !=
-                                                                HiveUtils
-                                                                    .getUserId())
-                                                        ? context
-                                                            .color.buttonColor
-                                                        : context.color
-                                                            .textDefaultColor));
+                                              text: isBold
+                                                  ? text.replaceAll("*", "")
+                                                  : text,
+                                              style: TextStyle(
+                                                color:
+                                                    (isDark &&
+                                                        widget.senderId
+                                                                .toString() !=
+                                                            HiveUtils.getUserId())
+                                                    ? context.color.buttonColor
+                                                    : context
+                                                          .color
+                                                          .textDefaultColor,
+                                                fontWeight: isBold
+                                                    ? FontWeight.w800
+                                                    : FontWeight.normal,
+                                              ),
+                                            );
                                           }).toList(),
-                                          style: TextStyle(
-                                              color: widget.senderId
-                                                          .toString() ==
-                                                      HiveUtils.getUserId()
-                                                  ? context.color.secondaryColor
-                                                  : context
-                                                      .color.textColorDark),
                                         );
                                       }).toList(),
                                     ),
                                     style: TextStyle(
-                                        color: (isDark &&
-                                                widget.senderId.toString() !=
-                                                    HiveUtils.getUserId())
-                                            ? context.color.buttonColor
-                                            : context.color.textDefaultColor),
+                                      color:
+                                          (isDark &&
+                                              widget.senderId.toString() !=
+                                                  HiveUtils.getUserId())
+                                          ? context.color.buttonColor
+                                          : context.color.textDefaultColor,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -376,27 +393,32 @@ class ChatWidgetState extends State<ChatMessage>
                         (widget.isSentNow != null
                             ? widget.isSentNow!
                             : widget.createdAt ==
-                                DateTime.now().toString())) ...[
+                                  DateTime.now().toString())) ...[
                       BlocConsumer<SendMessageCubit, SendMessageState>(
                         listener: (context, state) {
                           if (state is SendMessageSuccess) {
                             isChatSent = true;
 
-                            WidgetsBinding.instance
-                                .addPostFrameCallback((timeStamp) {
+                            WidgetsBinding.instance.addPostFrameCallback((
+                              timeStamp,
+                            ) {
                               if (mounted) setState(() {});
                             });
                           }
                           if (state is SendMessageFailed) {
                             HelperUtils.showSnackBarMessage(
-                                context, state.error.toString());
+                              context,
+                              state.error.toString(),
+                            );
                           }
                         },
                         builder: (context, state) {
                           if (state is SendMessageInProgress) {
                             return Padding(
                               padding: EdgeInsetsDirectional.only(
-                                  end: 5.0, bottom: 2),
+                                end: 5.0,
+                                bottom: 2,
+                              ),
                               child: Icon(
                                 Icons.watch_later_outlined,
                                 size: context.font.smaller,
@@ -408,7 +430,9 @@ class ChatWidgetState extends State<ChatMessage>
                           if (state is SendMessageFailed) {
                             return Padding(
                               padding: EdgeInsetsDirectional.only(
-                                  end: 5.0, bottom: 2),
+                                end: 5.0,
+                                bottom: 2,
+                              ),
                               child: Icon(
                                 Icons.error,
                                 size: context.font.smaller,
@@ -418,14 +442,12 @@ class ChatWidgetState extends State<ChatMessage>
                           }
                           return const SizedBox.shrink();
                         },
-                      )
-                    ]
+                      ),
+                    ],
                   ],
                 ),
               ),
-              const SizedBox(
-                height: 5,
-              ),
+              const SizedBox(height: 5),
               Padding(
                 padding: EdgeInsetsDirectional.only(end: 3.0),
                 child: CustomText(
@@ -433,9 +455,7 @@ class ChatWidgetState extends State<ChatMessage>
                       .toLocal()
                       .toIso8601String()
                       .toString()
-                      .formatDate(
-                        format: "hh:mm aa",
-                      ),
+                      .formatDate(format: "hh:mm aa"),
                   color: widget.senderId.toString() != HiveUtils.getUserId()
                       ? context.color.textLightColor
                       : context.color.textLightColor,

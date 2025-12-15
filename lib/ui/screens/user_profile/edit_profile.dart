@@ -433,7 +433,7 @@ class UserProfileScreenState extends State<UserProfileScreen> {
                   HelperUtils.showSnackBarMessage(context, "Please enter OTP");
                   return;
                 }
-                Navigator.pop(context); // Close dialog before verify
+                Navigator.pop(context);
                 await verifyEmailOtp(otp);
               },
               child: const Text("Verify"),
