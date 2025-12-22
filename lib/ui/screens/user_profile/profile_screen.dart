@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:Tijaraa/app/routes.dart';
+import 'package:Tijaraa/data/cubits/auth/auth_cubit.dart';
 import 'package:Tijaraa/data/cubits/auth/authentication_cubit.dart';
 import 'package:Tijaraa/data/cubits/auth/delete_user_cubit.dart';
 import 'package:Tijaraa/data/cubits/chat/blocked_users_list_cubit.dart';
@@ -54,7 +55,9 @@ class _ProfileScreenState extends State<ProfileScreen>
   bool isExpanded = false;
 
   final ScrollController scrollController = ScrollController();
-
+  late ValueNotifier<bool> notificationNotifier = ValueNotifier(
+    HiveUtils.getUserDetails().notification == 1,
+  );
   @override
   void initState() {
     super.initState();
@@ -252,9 +255,13 @@ class _ProfileScreenState extends State<ProfileScreen>
         appBar: appbarWidget(),
         body: RefreshIndicator(
           onRefresh: () async {
-            context
-                .read<FetchVerificationRequestsCubit>()
-                .fetchVerificationRequests();
+            if (HiveUtils.isUserAuthenticated()) {
+              context
+                  .read<FetchVerificationRequestsCubit>()
+                  .fetchVerificationRequests();
+            } else {
+              await Future.delayed(const Duration(milliseconds: 500));
+            }
           },
           child: SingleChildScrollView(
             controller: scrollController,
@@ -1146,14 +1153,41 @@ class _ProfileScreenState extends State<ProfileScreen>
             context.read<AppThemeCubit>().toggleTheme();
           },
         ),
-        profileMenuWidget("notifications", AppIcons.notification, () {
-          UiUtils.checkUser(
-            onNotGuest: () {
-              Navigator.pushNamed(context, Routes.notificationPage);
+        if (HiveUtils.isUserAuthenticated())
+          ValueListenableBuilder<bool>(
+            valueListenable: notificationNotifier,
+            builder: (context, isEnabled, child) {
+              return profileMenuWidget(
+                "notification".translate(context),
+                AppIcons.notification,
+                () {},
+                isSwitch: true,
+                switchValue: isEnabled,
+                onTapSwitch: (value) {
+                  // Update local UI state
+                  notificationNotifier.value = value;
+
+                  // Update Hive locally (Long-term persistence)
+                  var user = HiveUtils.getUserDetails();
+                  user.notification = value ? 1 : 0;
+                  HiveUtils.setUserData(user.toJson());
+
+                  // Silent background API update (Optional)
+                  context.read<AuthCubit>().updateUserData(
+                    notification: value ? "1" : "0",
+                  );
+                },
+              );
             },
-            context: context,
-          );
-        }),
+          ),
+        // profileMenuWidget("notifications", AppIcons.notification, () {
+        //   UiUtils.checkUser(
+        //     onNotGuest: () {
+        //       Navigator.pushNamed(context, Routes.notificationPage);
+        //     },
+        //     context: context,
+        //   );
+        // }),
         profileMenuWidget("blogs", AppIcons.articles, () {
           Navigator.pushNamed(context, Routes.blogsScreenRoute);
         }),

@@ -18,8 +18,8 @@ if (flutterRoot == null) {
     throw new GradleException("Flutter SDK not found. Define location with flutter.sdk in the local.properties file.")
 }
 
-def flutterVersionCode = localProperties.getProperty('flutter.versionCode') ?: '3'
-def flutterVersionName = localProperties.getProperty('flutter.versionName') ?: '1.0.2'
+def flutterVersionCode = localProperties.getProperty('flutter.versionCode') ?: '4'
+def flutterVersionName = localProperties.getProperty('flutter.versionName') ?: '1.0.3'
 
 def keystoreProperties = new Properties()
 def keystorePropertiesFile = rootProject.file('key.properties')
@@ -28,6 +28,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
+    ndkVersion = "28.2.13676358"
     namespace "com.tijaraa.app"
     compileSdkVersion 36
 

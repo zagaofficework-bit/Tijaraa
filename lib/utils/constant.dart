@@ -11,7 +11,7 @@ const String svgPath = 'assets/svg/';
 class Constant {
   static const String appName = AppSettings.applicationName;
   static const String packageName = AppSettings.packageName;
-  static String playStoreUrl = "";
+  static String playStoreUrl = "https://play.google.com/store/apps/details?id=com.tijaraa.app";
   static String appStoreUrl = "";
   static String iOSAppId = '';
 
@@ -30,13 +30,13 @@ class Constant {
   static String isGoogleInterstitialAdsEnabled = "";
   static String isGoogleNativeAdsEnabled = "1";
 
-  static String bannerAdIdAndroid = '';
+  static String bannerAdIdAndroid = 'ca-app-pub-2933415255715410/5547118291';
   static String bannerAdIdIOS = "";
 
-  static String interstitialAdIdAndroid = '';
+  static String interstitialAdIdAndroid = 'ca-app-pub-2933415255715410/5547118291';
   static String interstitialAdIdIOS = '';
 
-  static String nativeAdIdAndroid = '';
+  static String nativeAdIdAndroid = 'ca-app-pub-2933415255715410/4234036625';
   static String nativeAdIdIOS = '';
 
   static String currencySymbol = "";

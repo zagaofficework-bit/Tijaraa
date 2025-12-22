@@ -1,11 +1,11 @@
 import 'dart:io';
 
-import 'package:dio/dio.dart';
 import 'package:Tijaraa/data/model/data_output.dart';
 import 'package:Tijaraa/data/model/item/item_filter_model.dart';
 import 'package:Tijaraa/data/model/item/item_model.dart';
 import 'package:Tijaraa/data/model/location/leaf_location.dart';
 import 'package:Tijaraa/utils/api.dart';
+import 'package:dio/dio.dart';
 import 'package:path/path.dart' as path;
 
 class ItemRepository {
@@ -75,27 +75,34 @@ class ItemRepository {
     }
   }
 
+  // Update this specific method in ItemRepository
   Future<DataOutput<ItemModel>> fetchMyItems({
     String? getItemsWithStatus,
     int? page,
+    int? id, // 1. Add this parameter
   }) async {
     try {
       Map<String, dynamic> parameters = {
         if (getItemsWithStatus != null) Api.status: getItemsWithStatus,
         if (page != null) Api.page: page,
+        if (id != null) Api.id: id, // 2. Add id to the request parameters
       };
 
       if (parameters[Api.status] == "") parameters.remove(Api.status);
+
       Map<String, dynamic> response = await Api.get(
         url: Api.getMyItemApi,
         queryParameters: parameters,
       );
-      List<ItemModel> itemList = (response['data']['data'] as List)
+
+      var data = response['data']['data'] ?? response['data'];
+
+      List<ItemModel> itemList = (data as List)
           .map((element) => ItemModel.fromJson(element))
           .toList();
 
       return DataOutput(
-        total: response['data']['total'] ?? 0,
+        total: response['data']['total'] ?? itemList.length,
         modelList: itemList,
       );
     } catch (e) {

@@ -1,6 +1,6 @@
-import 'package:Tijaraa/utils/custom_exception.dart';
 import 'package:Tijaraa/data/model/company_model.dart';
 import 'package:Tijaraa/utils/api.dart';
+import 'package:Tijaraa/utils/custom_exception.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -25,36 +25,34 @@ class CompanyFetchFailure extends CompanyState {
 class CompanyCubit extends Cubit<CompanyState> {
   CompanyCubit() : super(CompanyInitial());
 
-  void fetchCompany(BuildContext context) {
+  // Remove BuildContext from here
+  void fetchCompany() async {
     emit(CompanyFetchProgress());
-    fetchCompanyFromDb(context)
-        .then((value) => emit(CompanyFetchSuccess(value)))
-        .catchError((e) => emit(CompanyFetchFailure(e.toString())));
+    try {
+      final companyData = await fetchCompanyFromDb();
+      emit(CompanyFetchSuccess(companyData));
+    } catch (e) {
+      // Log the actual error to your console so you can see it!
+      debugPrint("CompanyFetch Error: $e");
+      emit(CompanyFetchFailure(e.toString()));
+    }
   }
 
-  Future<Company> fetchCompanyFromDb(BuildContext context) async {
+  Future<Company> fetchCompanyFromDb() async {
     try {
-      Company companyData = Company();
+      var response = await Api.get(
+        url: Api.getSystemSettingsApi,
+        queryParameters: {},
+      );
 
-      Map<String, String> body = {};
-
-      var response =
-          await Api.get(url: Api.getSystemSettingsApi, queryParameters: body);
-
-      if (!response[Api.error]) {
-        var data = response['data'];
-
-        companyData = Company(
-            companyEmail: data['company_email'],
-            companyName: data['company_name'],
-            companyTel1: data['company_tel1'],
-            companyTel2: data['company_tel2']);
+      if (response[Api.error] == false) {
+        // Pass the 'data' Map directly to your model's fromJson constructor
+        return Company.fromJson(response['data']);
       } else {
-        throw CustomException(response[Api.message]);
+        throw CustomException(response[Api.message] ?? "Error fetching data");
       }
-
-      return companyData;
     } catch (e) {
+      debugPrint("Parsing Error: $e");
       rethrow;
     }
   }

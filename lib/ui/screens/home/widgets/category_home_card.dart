@@ -66,9 +66,9 @@ class CategoryHomeCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(10),
                         child: SizedBox(
                           // color: Colors.blue,
-                          width: 48,
-                          height: 48,
-                          child: UiUtils.imageType(url, fit: BoxFit.cover),
+                          width: 60,
+                          height: 60,
+                          child: UiUtils.imageType(url, fit: BoxFit.fill),
                         ),
                       ),
                     ),

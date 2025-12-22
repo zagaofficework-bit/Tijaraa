@@ -16,7 +16,11 @@ class UserModel {
   String? profile;
   String? token;
   String? updatedAt;
-  int? isVerified;
+
+  // Changed these to bool to match Laravel $casts
+  bool? isVerified;
+  bool? isEmailVerified;
+  bool? isPhoneVerified;
 
   UserModel({
     this.address,
@@ -37,6 +41,8 @@ class UserModel {
     this.updatedAt,
     this.isPersonalDetailShow,
     this.isVerified,
+    this.isEmailVerified,
+    this.isPhoneVerified,
   });
 
   UserModel.fromJson(Map<String, dynamic> json) {
@@ -48,25 +54,44 @@ class UserModel {
     firebaseId = json['firebase_id'];
     id = json['id'];
     isActive = json['isActive'] as int?;
-    isProfileCompleted = json['isProfileCompleted'];
+    isProfileCompleted = json['isProfileCompleted'] is bool
+        ? json['isProfileCompleted']
+        : (json['isProfileCompleted'].toString() == "1");
     type = json['type'];
     mobile = json['mobile'];
     name = json['name'];
 
-    notification = (json['notification'] != null
-        ? (json['notification'] is int)
-              ? json['notification']
-              : int.parse(json['notification'])
-        : null);
+    // Safely parse notification
+    notification = json['notification'] == null
+        ? null
+        : (json['notification'] is bool
+              ? (json['notification'] ? 1 : 0)
+              : int.tryParse(json['notification'].toString()));
+
     profile = json['profile'];
     token = json['token'];
     updatedAt = json['updated_at'];
-    isVerified = json['is_verified'];
-    isPersonalDetailShow = (json['show_personal_details'] != null
-        ? (json['show_personal_details'] is int)
-              ? json['show_personal_details']
-              : int.parse(json['show_personal_details'])
-        : null);
+
+    // --- FIXING THE CRASH HERE ---
+    // Handle is_verified as bool
+    isVerified = json['is_verified'] is bool
+        ? json['is_verified']
+        : (json['is_verified'].toString() == "1");
+
+    isEmailVerified = json['is_email_verified'] is bool
+        ? json['is_email_verified']
+        : (json['is_email_verified'].toString() == "1");
+
+    isPhoneVerified = json['is_phone_verified'] is bool
+        ? json['is_phone_verified']
+        : (json['is_phone_verified'].toString() == "1");
+
+    // Safely parse personal details show
+    isPersonalDetailShow = json['show_personal_details'] == null
+        ? null
+        : (json['show_personal_details'] is bool
+              ? (json['show_personal_details'] ? 1 : 0)
+              : int.tryParse(json['show_personal_details'].toString()));
   }
 
   Map<String, dynamic> toJson() {
@@ -89,12 +114,9 @@ class UserModel {
     data['updated_at'] = updatedAt;
     data['show_personal_details'] = isPersonalDetailShow;
     data['is_verified'] = isVerified;
+    data['is_email_verified'] = isEmailVerified;
+    data['is_phone_verified'] = isPhoneVerified;
     return data;
-  }
-
-  @override
-  String toString() {
-    return 'UserModel(address: $address, createdAt: $createdAt, customertotalpost: $customerTotalPost, email: $email, fcmId: $fcmId, firebaseId: $firebaseId, id: $id, isActive: $isActive, isProfileCompleted: $isProfileCompleted, type: $type, mobile: $mobile, name: $name, profile: $profile, token: $token, updatedAt: $updatedAt,notification:$notification,isPersonalDetailShow:$isPersonalDetailShow,isVerified:$isVerified)';
   }
 }
 

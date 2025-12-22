@@ -3130,19 +3130,19 @@ class AdDetailsScreenState extends CloudState<AdDetailsScreen> {
                         ),
                       ),
                     ),
-                  if (model.user!.showPersonalDetails == 1 &&
-                      model.user!.email != null &&
-                      model.user!.email!.isNotEmpty)
-                    InkWell(
-                      onTap: () {
-                        navigateToSellerProfile();
-                      },
-                      child: CustomText(
-                        model.user!.email!,
-                        color: context.color.textLightColor,
-                        fontSize: context.font.small,
-                      ),
-                    ),
+                  // if (model.user!.showPersonalDetails == 1 &&
+                  //     model.user!.email != null &&
+                  //     model.user!.email!.isNotEmpty)
+                  //   InkWell(
+                  //     onTap: () {
+                  //       navigateToSellerProfile();
+                  //     },
+                  //     child: CustomText(
+                  //       model.user!.email!,
+                  //       color: context.color.textLightColor,
+                  //       fontSize: context.font.small,
+                  //     ),
+                  //   ),
                 ],
               ),
             ),

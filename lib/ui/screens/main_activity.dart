@@ -1,5 +1,3 @@
-// ignore_for_file: invalid_use_of_protected_member
-
 import 'dart:async';
 import 'dart:io';
 
@@ -14,6 +12,7 @@ import 'package:Tijaraa/ui/screens/user_profile/profile_screen.dart';
 import 'package:Tijaraa/ui/screens/widgets/blurred_dialog_box.dart';
 import 'package:Tijaraa/ui/screens/widgets/bottom_navigation_bar/custom_bottom_navigation_bar.dart';
 import 'package:Tijaraa/ui/screens/widgets/bottom_navigation_bar/diamond_fab.dart';
+import 'package:Tijaraa/ui/screens/widgets/chatbot/floating_ai_moon.dart';
 import 'package:Tijaraa/ui/screens/widgets/maintenance_mode.dart';
 import 'package:Tijaraa/ui/theme/theme.dart';
 import 'package:Tijaraa/utils/app_icon.dart';
@@ -34,15 +33,15 @@ String selectedCategoryId = "0";
 String selectedCategoryName = "";
 dynamic selectedCategory;
 
-//this will set when i will visit in any category
 dynamic currentVisitingCategoryId = "";
 dynamic currentVisitingCategory = "";
 
 class MainActivity extends StatefulWidget {
-  // FIX: Changed from StatelessWidget to StatefulWidget
   final String from;
   final String? itemSlug;
   final String? sellerId;
+
+  // FIX: Keep both keys for backward compatibility
   static final GlobalKey<MainActivityState> globalKey =
       GlobalKey<MainActivityState>();
 
@@ -75,8 +74,6 @@ class MainActivityState extends State<MainActivity> {
   void initState() {
     super.initState();
 
-    // The context.read in initState for FetchSystemSettingsCubit is fine
-    // because it is very likely provided higher up in the MaterialApp/root widget.
     FetchSystemSettingsCubit settings = context
         .read<FetchSystemSettingsCubit>();
     if (!bool.fromEnvironment(
@@ -89,7 +86,6 @@ class MainActivityState extends State<MainActivity> {
     var numberWithSuffix = settings.getSetting(SystemSetting.numberWithSuffix);
     Constant.isNumberWithSuffix = numberWithSuffix == "1" ? true : false;
 
-    ///This will check for update
     versionCheck(settings);
 
     if (widget.itemSlug != null) {
@@ -154,7 +150,6 @@ class MainActivityState extends State<MainActivity> {
       );
 
       Future.delayed(Duration.zero, () {
-        //This is force update -> forceUpdate == "1"
         UiUtils.showBlurredDialoge(
           context,
           dialoge: BlurredDialogBox(
@@ -202,6 +197,8 @@ class MainActivityState extends State<MainActivity> {
 
   @override
   Widget build(BuildContext context) {
+    final keyboardVisible = MediaQuery.of(context).viewInsets.bottom > 0;
+
     return AnnotatedRegion(
       value: UiUtils.getSystemUiOverlayStyle(
         context: context,
@@ -229,38 +226,52 @@ class MainActivityState extends State<MainActivity> {
           }
         },
         child: Scaffold(
+          // FIX: Use mainScaffoldKey for drawer, but keep widget key as globalKey
+          key: mainScaffoldKey,
+
+          resizeToAvoidBottomInset: false,
           backgroundColor: context.color.primaryColor,
-          bottomNavigationBar: CustomBottomNavigationBar(
-            controller: _bottomNavigationController,
-          ),
-          floatingActionButton: DiamondFab(),
+
+          // Add AI Chat Drawer (slides from right at 80% width)
+          endDrawer: const AIChatDrawer(),
+
+          // Hide bottom nav when keyboard is visible
+          bottomNavigationBar: keyboardVisible
+              ? null
+              : CustomBottomNavigationBar(
+                  controller: _bottomNavigationController,
+                ),
+
+          // Hide FAB when keyboard is visible
+          floatingActionButton: keyboardVisible ? null : const DiamondFab(),
+
           floatingActionButtonLocation:
               FloatingActionButtonLocation.centerDocked,
-          // FIX 1: Wrap the body content with the required BlocProvider
+
           body: BlocProvider<GetCombinedChatListCubit>(
-            // NOTE: You might need to pass dependencies here (e.g., repository or data source)
-            // If the dependency is available in a parent context, you can read it like:
-            // create: (context) => GetCombinedChatListCubit(context.read<ChatRepository>()),
             create: (context) => GetCombinedChatListCubit(),
             child: Stack(
               children: <Widget>[
-                PageView(
-                  controller: _pageController,
-                  physics: const NeverScrollableScrollPhysics(),
-                  // FIX 2: Add unique keys to all PageView children for stability
-                  // (Resolves 'SliverMultiBoxAdaptor' and 'KeepAlive' assertions)
-                  children: [
-                    HomeScreen(
-                      key: const ValueKey("homeScreen"),
-                      from: widget.from,
-                    ),
-                    ChatListScreen(key: const ValueKey("chatListScreen")),
-                    ItemsScreen(key: const ValueKey("itemsScreen")),
-                    // Removed 'const' keyword to allow passing the key
-                    ProfileScreen(key: const ValueKey("profileScreen")),
-                  ],
+                RepaintBoundary(
+                  child: PageView(
+                    controller: _pageController,
+                    physics: const NeverScrollableScrollPhysics(),
+                    children: [
+                      HomeScreen(
+                        key: const ValueKey("homeScreen"),
+                        from: widget.from,
+                      ),
+                      const ChatListScreen(key: ValueKey("chatListScreen")),
+                      const ItemsScreen(key: ValueKey("itemsScreen")),
+                      const ProfileScreen(key: ValueKey("profileScreen")),
+                    ],
+                  ),
                 ),
-                if (Constant.maintenanceMode == "1") MaintenanceMode(),
+
+                if (Constant.maintenanceMode == "1") const MaintenanceMode(),
+
+                // Floating AI Moon button (opens drawer)
+                const FloatingAIMoon(),
               ],
             ),
           ),
@@ -269,8 +280,9 @@ class MainActivityState extends State<MainActivity> {
     );
   }
 
+  // Keep this method for backward compatibility with notifications
   void onItemTapped(int index) {
-    print(index);
+    print("onItemTapped: $index");
     _bottomNavigationController.changeIndex(index);
   }
 }

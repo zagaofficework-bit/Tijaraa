@@ -33,7 +33,10 @@ class FetchHomeScreenCubit extends Cubit<FetchHomeScreenState> {
           .fetchHome(location: location);
 
       emit(FetchHomeScreenSuccess(homeScreenDataList));
-    } catch (e) {
+    } catch (e, stackTrace) {
+      // <--- Added stackTrace here
+      print("CRITICAL CUBIT ERROR: $e");
+      print("STACKTRACE: $stackTrace"); // <--- This is vital
       emit(FetchHomeScreenFail(e));
     }
   }

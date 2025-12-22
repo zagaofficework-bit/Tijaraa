@@ -62,11 +62,11 @@ class CategoryCard extends StatelessWidget {
                   child: Center(
                     child: SizedBox(
                       // color: Colors.blue,
-                      width: 75,
-                      height: 75,
+                      width: 85,
+                      height: 85,
                       child: UiUtils.imageType(
                         url,
-                        fit: BoxFit.cover,
+                        fit: BoxFit.fill,
                         color: context.color.territoryColor,
                       ),
                     ),

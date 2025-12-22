@@ -1,8 +1,8 @@
 name: Tijaraa
-description: A classified app
+description: Your space to trade
 publish_to: 'none'
 
-version: 1.0.2+3
+version: 1.0.3+4
 
 environment:
   sdk: ">=3.8.0 <4.0.0"
@@ -17,6 +17,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   shimmer: ^3.0.0
   lottie: ^3.3.1
+  speech_to_text: ^7.1.0
   flutter_svg: ^2.1.0
   cached_network_image: ^3.4.1
   dotted_border: ^2.1.0
@@ -62,7 +63,7 @@ dependencies:
   google_maps_flutter: ^2.12.1
   device_region: ^1.4.0
   device_info_plus: ^11.4.0
-
+  rxdart: ^0.28.0
   # Auth & Sign-in
   google_sign_in: ^6.3.0
   sign_in_with_apple: ^7.0.1
@@ -140,6 +141,9 @@ flutter:
     - assets/languages/language.json
     - assets/map.png
     - assets/svg/Logo/logo.png
+    - assets/ai.json
+    - assets/tijaraa_model.json
+    - assets/videos/splash.mp4
   fonts:
     - family: Manrope
       fonts:

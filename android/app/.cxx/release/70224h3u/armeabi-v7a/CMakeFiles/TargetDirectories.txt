@@ -1,2 +1,0 @@
-D:/Tijaraa/android/app/.cxx/release/70224h3u/armeabi-v7a/CMakeFiles/edit_cache.dir
-D:/Tijaraa/android/app/.cxx/release/70224h3u/armeabi-v7a/CMakeFiles/rebuild_cache.dir

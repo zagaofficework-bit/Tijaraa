@@ -20,10 +20,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class HomeSectionsAdapter extends StatelessWidget {
   final HomeScreenSection section;
 
-  const HomeSectionsAdapter({
-    super.key,
-    required this.section,
-  });
+  const HomeSectionsAdapter({super.key, required this.section});
 
   @override
   Widget build(BuildContext context) {
@@ -36,11 +33,14 @@ class HomeSectionsAdapter extends StatelessWidget {
                 TitleHeader(
                   title: section.title ?? "",
                   onTap: () {
-                    Navigator.pushNamed(context, Routes.sectionWiseItemsScreen,
-                        arguments: {
-                          "title": section.title,
-                          "sectionId": section.sectionId,
-                        });
+                    Navigator.pushNamed(
+                      context,
+                      Routes.sectionWiseItemsScreen,
+                      arguments: {
+                        "title": section.title,
+                        "sectionId": section.sectionId,
+                      },
+                    );
                   },
                   // section: section,
                 ),
@@ -48,16 +48,12 @@ class HomeSectionsAdapter extends StatelessWidget {
                   type: ListUiType.List,
                   height: MediaQuery.of(context).size.height / 3.1,
                   listAxis: Axis.horizontal,
-                  listSeparator: (BuildContext p0, int p1) => const SizedBox(
-                    width: 14,
-                  ),
+                  listSeparator: (BuildContext p0, int p1) =>
+                      const SizedBox(width: 14),
                   builder: (context, int index, bool) {
                     ItemModel? item = section.sectionData?[index];
 
-                    return ItemCard(
-                      item: item,
-                      bigCard: true,
-                    );
+                    return ItemCard(item: item, bigCard: true);
                   },
                   total: section.sectionData?.length ?? 0,
                 ),
@@ -73,27 +69,26 @@ class HomeSectionsAdapter extends StatelessWidget {
                 TitleHeader(
                   title: section.title ?? "",
                   onTap: () {
-                    Navigator.pushNamed(context, Routes.sectionWiseItemsScreen,
-                        arguments: {
-                          "title": section.title,
-                          "sectionId": section.sectionId,
-                        });
+                    Navigator.pushNamed(
+                      context,
+                      Routes.sectionWiseItemsScreen,
+                      arguments: {
+                        "title": section.title,
+                        "sectionId": section.sectionId,
+                      },
+                    );
                   },
                 ),
                 GridListAdapter(
                   type: ListUiType.List,
                   height: MediaQuery.of(context).size.height / 3.2,
                   listAxis: Axis.horizontal,
-                  listSeparator: (BuildContext p0, int p1) => const SizedBox(
-                    width: 14,
-                  ),
+                  listSeparator: (BuildContext p0, int p1) =>
+                      const SizedBox(width: 14),
                   builder: (context, int index, bool) {
                     ItemModel? item = section.sectionData?[index];
 
-                    return ItemCard(
-                      item: item,
-                      width: 144,
-                    );
+                    return ItemCard(item: item, width: 144);
                   },
                   total: section.sectionData?.length ?? 0,
                 ),
@@ -109,11 +104,14 @@ class HomeSectionsAdapter extends StatelessWidget {
                 TitleHeader(
                   title: section.title ?? "",
                   onTap: () {
-                    Navigator.pushNamed(context, Routes.sectionWiseItemsScreen,
-                        arguments: {
-                          "title": section.title,
-                          "sectionId": section.sectionId,
-                        });
+                    Navigator.pushNamed(
+                      context,
+                      Routes.sectionWiseItemsScreen,
+                      arguments: {
+                        "title": section.title,
+                        "sectionId": section.sectionId,
+                      },
+                    );
                   },
                 ),
                 GridListAdapter(
@@ -123,10 +121,7 @@ class HomeSectionsAdapter extends StatelessWidget {
                   builder: (context, int index, bool) {
                     ItemModel? item = section.sectionData?[index];
 
-                    return ItemCard(
-                      item: item,
-                      width: 192,
-                    );
+                    return ItemCard(item: item, width: 192);
                   },
                   total: section.sectionData?.length ?? 0,
                 ),
@@ -140,27 +135,26 @@ class HomeSectionsAdapter extends StatelessWidget {
                 TitleHeader(
                   title: section.title ?? "",
                   onTap: () {
-                    Navigator.pushNamed(context, Routes.sectionWiseItemsScreen,
-                        arguments: {
-                          "title": section.title,
-                          "sectionId": section.sectionId,
-                        });
+                    Navigator.pushNamed(
+                      context,
+                      Routes.sectionWiseItemsScreen,
+                      arguments: {
+                        "title": section.title,
+                        "sectionId": section.sectionId,
+                      },
+                    );
                   },
                 ),
                 GridListAdapter(
                   type: ListUiType.List,
                   height: MediaQuery.of(context).size.height / 3.2,
                   listAxis: Axis.horizontal,
-                  listSeparator: (BuildContext p0, int p1) => const SizedBox(
-                    width: 14,
-                  ),
+                  listSeparator: (BuildContext p0, int p1) =>
+                      const SizedBox(width: 14),
                   builder: (context, int index, bool) {
                     ItemModel? item = section.sectionData?[index];
 
-                    return ItemCard(
-                      item: item,
-                      width: 192,
-                    );
+                    return ItemCard(item: item, width: 192);
                   },
                   total: section.sectionData?.length ?? 0,
                 ),
@@ -189,28 +183,37 @@ class TitleHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsetsDirectional.only(
-          top: 18, bottom: 12, start: sidePadding, end: sidePadding),
+        top: 18,
+        bottom: 12,
+        start: sidePadding,
+        end: sidePadding,
+      ),
       child: Row(
         children: [
           Expanded(
-              flex: 4,
-              child: CustomText(
-                title,
-                fontSize: context.font.large,
-                fontWeight: FontWeight.w600,
-                maxLines: 1,
-              )),
+            flex: 4,
+            child: CustomText(
+              title,
+              fontSize: context.font.large,
+              fontWeight: FontWeight.w600,
+              maxLines: 1,
+            ),
+          ),
           const Spacer(),
           if (!(hideSeeAll ?? false))
             GestureDetector(
-                onTap: onTap,
-                child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 4, vertical: 2.2),
-                    child: CustomText(
-                      "seeAll".translate(context),
-                      fontSize: context.font.smaller + 1,
-                    )))
+              onTap: onTap,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 4,
+                  vertical: 2.2,
+                ),
+                child: CustomText(
+                  "seeAll".translate(context),
+                  fontSize: context.font.smaller + 1,
+                ),
+              ),
+            ),
         ],
       ),
     );
@@ -222,12 +225,7 @@ class ItemCard extends StatefulWidget {
   final bool? bigCard;
   final ItemModel? item;
 
-  const ItemCard({
-    super.key,
-    required this.item,
-    this.width,
-    this.bigCard,
-  });
+  const ItemCard({super.key, required this.item, this.width, this.bigCard});
 
   @override
   _ItemCardState createState() => _ItemCardState();
@@ -249,9 +247,11 @@ class _ItemCardState extends State<ItemCard> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Navigator.pushNamed(context, Routes.adDetailsScreen, arguments: {
-          "model": widget.item,
-        });
+        Navigator.pushNamed(
+          context,
+          Routes.adDetailsScreen,
+          arguments: {"model": widget.item},
+        );
       },
       child: Container(
         width: widget.width ?? 250,
@@ -280,11 +280,13 @@ class _ItemCardState extends State<ItemCard> {
                         fit: BoxFit.cover,
                       ),
                     ),
-                    if (widget.item?.isFeature ?? false)
+                    if (widget.item?.isFeature == true ||
+                        widget.item?.isFeature == 1)
                       const PositionedDirectional(
-                          start: 10,
-                          top: 5,
-                          child: PromotedCard(type: PromoteCardType.icon)),
+                        start: 10,
+                        top: 5,
+                        child: PromotedCard(type: PromoteCardType.icon),
+                      ),
                   ],
                 ),
                 Expanded(
@@ -297,8 +299,11 @@ class _ItemCardState extends State<ItemCard> {
                       children: [
                         if (UiUtils.displayPrice(widget.item!))
                           Flexible(
-                              child: UiUtils.getPriceWidget(
-                                  widget.item!, context)),
+                            child: UiUtils.getPriceWidget(
+                              widget.item!,
+                              context,
+                            ),
+                          ),
                         CustomText(
                           widget.item!.translatedName!,
                           fontSize: context.font.large,
@@ -315,8 +320,9 @@ class _ItemCardState extends State<ItemCard> {
                               ),
                               Expanded(
                                 child: Padding(
-                                  padding:
-                                      EdgeInsetsDirectional.only(start: 3.0),
+                                  padding: EdgeInsetsDirectional.only(
+                                    start: 3.0,
+                                  ),
                                   child: CustomText(
                                     widget.item?.translatedAddress ?? "",
                                     fontSize: (widget.bigCard == true)
@@ -327,7 +333,7 @@ class _ItemCardState extends State<ItemCard> {
                                     maxLines: 1,
                                   ),
                                 ),
-                              )
+                              ),
                             ],
                           ),
                         if (widget.item?.created != "")
@@ -341,12 +347,14 @@ class _ItemCardState extends State<ItemCard> {
                               ),
                               Expanded(
                                 child: Padding(
-                                  padding:
-                                      EdgeInsetsDirectional.only(start: 3.0),
+                                  padding: EdgeInsetsDirectional.only(
+                                    start: 3.0,
+                                  ),
                                   child: CustomText(
                                     UiUtils.convertToAgo(
-                                        context: context,
-                                        setDate: widget.item!.created!),
+                                      context: context,
+                                      setDate: widget.item!.created!,
+                                    ),
                                     fontSize: (widget.bigCard == true)
                                         ? context.font.small
                                         : context.font.smaller,
@@ -355,7 +363,7 @@ class _ItemCardState extends State<ItemCard> {
                                     maxLines: 1,
                                   ),
                                 ),
-                              )
+                              ),
                             ],
                           ),
                       ],
@@ -372,88 +380,88 @@ class _ItemCardState extends State<ItemCard> {
   }
 
   Widget favButton() {
-    bool isLike =
-        context.read<FavoriteCubit>().isItemFavorite(widget.item!.id!);
+    bool isLike = context.read<FavoriteCubit>().isItemFavorite(
+      widget.item!.id!,
+    );
 
     return BlocProvider(
-        create: (context) => UpdateFavoriteCubit(FavoriteRepository()),
-        child: BlocConsumer<FavoriteCubit, FavoriteState>(
-            bloc: context.read<FavoriteCubit>(),
+      create: (context) => UpdateFavoriteCubit(FavoriteRepository()),
+      child: BlocConsumer<FavoriteCubit, FavoriteState>(
+        bloc: context.read<FavoriteCubit>(),
+        listener: ((context, state) {
+          if (state is FavoriteFetchSuccess) {
+            isLike = context.read<FavoriteCubit>().isItemFavorite(
+              widget.item!.id!,
+            );
+          }
+        }),
+        builder: (context, likeAndDislikeState) {
+          return BlocConsumer<UpdateFavoriteCubit, UpdateFavoriteState>(
+            bloc: context.read<UpdateFavoriteCubit>(),
             listener: ((context, state) {
-              if (state is FavoriteFetchSuccess) {
-                isLike = context
-                    .read<FavoriteCubit>()
-                    .isItemFavorite(widget.item!.id!);
+              if (state is UpdateFavoriteSuccess) {
+                if (state.wasProcess) {
+                  context.read<FavoriteCubit>().addFavoriteitem(state.item);
+                } else {
+                  context.read<FavoriteCubit>().removeFavoriteItem(state.item);
+                }
               }
             }),
-            builder: (context, likeAndDislikeState) {
-              return BlocConsumer<UpdateFavoriteCubit, UpdateFavoriteState>(
-                  bloc: context.read<UpdateFavoriteCubit>(),
-                  listener: ((context, state) {
-                    if (state is UpdateFavoriteSuccess) {
-                      if (state.wasProcess) {
-                        context
-                            .read<FavoriteCubit>()
-                            .addFavoriteitem(state.item);
-                      } else {
-                        context
-                            .read<FavoriteCubit>()
-                            .removeFavoriteItem(state.item);
-                      }
-                    }
-                  }),
-                  builder: (context, state) {
-                    return PositionedDirectional(
-                      top: (MediaQuery.sizeOf(context).height / 5.45) -
-                          (likeButtonSize / 2) -
-                          2,
-                      end: 16,
-                      child: InkWell(
-                        onTap: () {
-                          UiUtils.checkUser(
-                              onNotGuest: () {
-                                context
-                                    .read<UpdateFavoriteCubit>()
-                                    .setFavoriteItem(
-                                      item: widget.item!,
-                                      type: isLike ? 0 : 1,
-                                    );
-                              },
-                              context: context);
-                        },
-                        child: Container(
-                          width: likeButtonSize,
-                          height: likeButtonSize,
-                          decoration: BoxDecoration(
-                            color: context.color.secondaryColor,
-                            shape: BoxShape.circle,
-                            boxShadow: context.read<AppThemeCubit>().state ==
-                                    AppTheme.dark
-                                ? null
-                                : [
-                                    BoxShadow(
-                                      color: Colors.grey[300]!,
-                                      offset: const Offset(0, 2),
-                                      spreadRadius: 2,
-                                      blurRadius: 4,
-                                    ),
-                                  ],
-                          ),
-                          child: FittedBox(
-                            fit: BoxFit.none,
-                            child: state is UpdateFavoriteInProgress
-                                ? Center(child: UiUtils.progress())
-                                : UiUtils.getSvg(
-                                    isLike ? AppIcons.like_fill : AppIcons.like,
-                                    width: 22,
-                                    height: 22,
-                                    color: context.color.territoryColor,
-                                  ),
-                          ),
-                        ),
-                      ),
+            builder: (context, state) {
+              return PositionedDirectional(
+                top:
+                    (MediaQuery.sizeOf(context).height / 5.45) -
+                    (likeButtonSize / 2) -
+                    2,
+                end: 16,
+                child: InkWell(
+                  onTap: () {
+                    UiUtils.checkUser(
+                      onNotGuest: () {
+                        context.read<UpdateFavoriteCubit>().setFavoriteItem(
+                          item: widget.item!,
+                          type: isLike ? 0 : 1,
+                        );
+                      },
+                      context: context,
                     );
-                  });
-            }));
+                  },
+                  child: Container(
+                    width: likeButtonSize,
+                    height: likeButtonSize,
+                    decoration: BoxDecoration(
+                      color: context.color.secondaryColor,
+                      shape: BoxShape.circle,
+                      boxShadow:
+                          context.read<AppThemeCubit>().state == AppTheme.dark
+                          ? null
+                          : [
+                              BoxShadow(
+                                color: Colors.grey[300]!,
+                                offset: const Offset(0, 2),
+                                spreadRadius: 2,
+                                blurRadius: 4,
+                              ),
+                            ],
+                    ),
+                    child: FittedBox(
+                      fit: BoxFit.none,
+                      child: state is UpdateFavoriteInProgress
+                          ? Center(child: UiUtils.progress())
+                          : UiUtils.getSvg(
+                              isLike ? AppIcons.like_fill : AppIcons.like,
+                              width: 22,
+                              height: 22,
+                              color: context.color.territoryColor,
+                            ),
+                    ),
+                  ),
+                ),
+              );
+            },
+          );
+        },
+      ),
+    );
   }
 }

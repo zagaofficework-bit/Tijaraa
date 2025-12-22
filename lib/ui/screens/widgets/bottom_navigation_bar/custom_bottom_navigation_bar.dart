@@ -44,8 +44,6 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
 
   @override
   Widget build(BuildContext context) {
-    // We need SafeArea here because we are not using conventional BottomNavigationBar
-    // widget, hence it will not automatically add padding on Android 15 edge-to-edge mode
     return SafeArea(
       child: SizedBox(
         height: kBottomNavigationBarHeight,
@@ -55,11 +53,6 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
             listenable: widget.controller,
             builder: (context, child) {
               final selectedIndex = widget.controller.index;
-              // Track the index of each child.
-              // We do it manually as we are using SizedBox and we don't want
-              // it to occupy any index, hence that is why we can't use conventional
-              // NavigationBar or BottomNavigationBar because they will assign index
-              // to SizedBox also
               int itemIndex = 0;
               return Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,

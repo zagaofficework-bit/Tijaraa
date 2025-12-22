@@ -7,15 +7,17 @@ class HomeScreenSection {
   String? style;
   List<ItemModel>? sectionData;
 
-  HomeScreenSection(
-      {this.sectionId,
-      this.style,
-      this.title,
-      this.totalData,
-      this.sectionData});
+  HomeScreenSection({
+    this.sectionId,
+    this.style,
+    this.title,
+    this.totalData,
+    this.sectionData,
+  });
 
   HomeScreenSection.fromJson(Map<String, dynamic> json) {
-    sectionId = json['id'];
+    // Safe way to parse a dynamic field to int
+    sectionId = int.tryParse(json['id']?.toString() ?? "0") ?? 0;
     title = json['translated_name'] ?? json['title'];
     style = json['style'];
     totalData = json['total_data'];
@@ -61,26 +63,27 @@ class SectionData {
   int? likes;
   List<CustomFields>? customFields;
 
-  SectionData(
-      {this.id,
-      this.name,
-      this.description,
-      this.price,
-      this.image,
-      this.watermarkImage,
-      this.latitude,
-      this.longitude,
-      this.address,
-      this.contact,
-      this.type,
-      this.status,
-      this.active,
-      this.videoLink,
-      this.userDetails,
-      this.galleryImages,
-      this.clicks,
-      this.likes,
-      this.customFields});
+  SectionData({
+    this.id,
+    this.name,
+    this.description,
+    this.price,
+    this.image,
+    this.watermarkImage,
+    this.latitude,
+    this.longitude,
+    this.address,
+    this.contact,
+    this.type,
+    this.status,
+    this.active,
+    this.videoLink,
+    this.userDetails,
+    this.galleryImages,
+    this.clicks,
+    this.likes,
+    this.customFields,
+  });
 
   SectionData.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -162,20 +165,21 @@ class UserDetails {
   String? createdAt;
   String? updatedAt;
 
-  UserDetails(
-      {this.id,
-      this.name,
-      this.mobile,
-      this.email,
-      this.type,
-      this.profile,
-      this.fcmId,
-      this.firebaseId,
-      this.status,
-      this.apiToken,
-      this.address,
-      this.createdAt,
-      this.updatedAt});
+  UserDetails({
+    this.id,
+    this.name,
+    this.mobile,
+    this.email,
+    this.type,
+    this.profile,
+    this.fcmId,
+    this.firebaseId,
+    this.status,
+    this.apiToken,
+    this.address,
+    this.createdAt,
+    this.updatedAt,
+  });
 
   UserDetails.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -219,8 +223,13 @@ class GalleryImages {
   String? updatedAt;
   int? itemId;
 
-  GalleryImages(
-      {this.id, this.image, this.createdAt, this.updatedAt, this.itemId});
+  GalleryImages({
+    this.id,
+    this.image,
+    this.createdAt,
+    this.updatedAt,
+    this.itemId,
+  });
 
   GalleryImages.fromJson(Map<String, dynamic> json) {
     id = json['id'];

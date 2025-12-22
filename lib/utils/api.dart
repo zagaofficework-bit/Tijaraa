@@ -29,11 +29,18 @@ class ApiException implements Exception {
 }
 
 class Api {
-  static Dio _dio = Dio()
-    ..interceptors.addAll([
-      NetworkRequestInterceptor(),
-      //CurlLoggerDioInterceptor(printOnSuccess: true),
-    ]);
+  static Dio _dio =
+      Dio(
+          BaseOptions(
+            connectTimeout: const Duration(seconds: 30),
+            receiveTimeout: const Duration(seconds: 30),
+            sendTimeout: const Duration(seconds: 30),
+          ),
+        )
+        ..interceptors.addAll([
+          NetworkRequestInterceptor(),
+          //CurlLoggerDioInterceptor(printOnSuccess: true),
+        ]);
 
   static bool _isProcessing = false;
 
@@ -43,6 +50,9 @@ class Api {
       if (token != null) "Authorization": "Bearer $token",
       "Accept": "application/json",
       "Content-Language": Constant.currentLanguageCode,
+      // Always include User-Agent to prevent 403 Forbidden errors
+      "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
     };
   }
 
@@ -263,7 +273,7 @@ class Api {
     bool? useBaseUrl,
   }) async {
     try {
-      late FormData formData;
+      late dynamic requestData;
 
       if (parameter is Map<String, dynamic>) {
         Map<String, dynamic> formMap = {};
@@ -288,48 +298,67 @@ class Api {
           }
         });
 
-        formData = FormData.fromMap(formMap, ListFormat.multiCompatible);
+        requestData = FormData.fromMap(formMap, ListFormat.multiCompatible);
       } else {
-        throw ArgumentError(
-          'Invalid parameter type. Expected Map<String, dynamic>.',
-        );
+        // Handle cases where parameters might be raw JSON or other types
+        requestData = parameter;
       }
 
       final response = await _dio.post(
         ((useBaseUrl ?? true) ? Constant.baseUrl : "") + url,
-        data: formData,
+        data: requestData,
         options: Options(
-          contentType: "multipart/form-data",
-          headers: headers(),
+          // contentType is important for file uploads
+          contentType: parameter is Map<String, dynamic>
+              ? "multipart/form-data"
+              : "application/json",
+          headers: headers(), // This now includes the critical User-Agent
         ),
       );
 
-      var resp = response.data;
+      // Check if response is actually a Map (JSON) before accessing keys
+      if (response.data is Map) {
+        var resp = response.data;
 
-      if (resp['error'] ?? false) {
-        throw ApiException(resp['message'].toString());
+        if (resp['error'] ?? false) {
+          throw ApiException(resp['message']?.toString() ?? "Unknown Error");
+        }
+
+        return Map<String, dynamic>.from(resp);
+      } else {
+        throw ApiException("Server returned an invalid format.");
+      }
+    } on DioException catch (e, st) {
+      log("Dio Error: ${e.message}", stackTrace: st);
+
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.receiveTimeout) {
+        throw ApiException("Server connection timed out. Please try again.");
       }
 
-      return Map.from(resp);
-    } on DioException catch (e, st) {
-      print(e.toString());
-      print(st.toString());
       if (e.response?.statusCode == 401) {
         userExpired();
+        throw ApiException("Session expired. Please log in again.");
       }
 
       if (e.response?.statusCode == 503) {
         throw "server-not-available";
       }
 
+      // Check for 403 (Commonly caused by missing User-Agent/WAF)
+      if (e.response?.statusCode == 403) {
+        throw ApiException("Access Denied: Please contact support.");
+      }
+
       throw ApiException(
         e.error is SocketException
             ? "no-internet"
-            : "Something went wrong with error ${e.response?.statusCode}",
+            : "Request failed with status: ${e.response?.statusCode}",
       );
     } on ApiException catch (e) {
-      throw ApiException(e.errorMessage);
-    } catch (e) {
+      rethrow;
+    } catch (e, st) {
+      log("General Error in Post: $e", stackTrace: st);
       throw ApiException(e.toString());
     }
   }
@@ -396,6 +425,7 @@ class Api {
     } on DioException catch (e) {
       if (e.response?.statusCode == 401) {
         userExpired();
+        throw ApiException("Session expired. Please log in again.");
       }
       if (e.response?.statusCode == 503) {
         throw "server-not-available";
@@ -427,9 +457,7 @@ class Api {
       Map<String, dynamic> combinedHeaders = {
         ...headers(), // Your existing Authorization, Accept, etc.
         if (customHeaders != null) ...customHeaders,
-        // --- FIX FOR 403 ERROR ---
-        // This makes the request look like it's coming from a standard browser,
-        // which helps bypass Cloudflare/WAF security checks.
+
         'User-Agent':
             'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
       };
@@ -488,6 +516,7 @@ class Api {
       log('$e', name: 'DIO');
       if (e.response?.statusCode == 401) {
         userExpired();
+        throw ApiException("Session expired. Please log in again.");
       }
       if (e.response?.statusCode == 503) {
         throw "server-not-available";

@@ -34,12 +34,14 @@ class ContactUsState extends State<ContactUs> {
 
   void fetchSettingsPagesData() {
     Future.delayed(Duration.zero, (() {
-      context
-          .read<SettingsPagesCubit>()
-          .fetchSettingsPages(context, Api.contactUs, forceRefresh: true);
+      context.read<SettingsPagesCubit>().fetchSettingsPages(
+        context,
+        Api.contactUs,
+        forceRefresh: true,
+      );
       if (context.read<CompanyCubit>().state is CompanyInitial ||
           context.read<CompanyCubit>().state is CompanyFetchFailure) {
-        context.read<CompanyCubit>().fetchCompany(context);
+        context.read<CompanyCubit>().fetchCompany();
       } else {}
     }));
   }
@@ -48,102 +50,113 @@ class ContactUsState extends State<ContactUs> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: context.color.backgroundColor,
-      appBar: UiUtils.buildAppBar(context,
-          title: "contactUs".translate(context), showBackButton: true),
-      body: BlocBuilder<CompanyCubit, CompanyState>(builder: (context, state) {
-        if (state is CompanyFetchProgress) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        } else if (state is CompanyFetchSuccess) {
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              spacing: 15,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CustomText(
-                  "howCanWeHelp".translate(context),
-                  color: context.color.textColorDark,
-                  fontSize: context.font.larger,
-                  fontWeight: FontWeight.w700,
-                ),
-                contactUsData(),
-                customTile(context, title: "callBtnLbl".translate(context),
+      appBar: UiUtils.buildAppBar(
+        context,
+        title: "contactUs".translate(context),
+        showBackButton: true,
+      ),
+      body: BlocBuilder<CompanyCubit, CompanyState>(
+        builder: (context, state) {
+          if (state is CompanyFetchProgress) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (state is CompanyFetchSuccess) {
+            return SingleChildScrollView(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                spacing: 15,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CustomText(
+                    "howCanWeHelp".translate(context),
+                    color: context.color.textColorDark,
+                    fontSize: context.font.larger,
+                    fontWeight: FontWeight.w700,
+                  ),
+                  contactUsData(),
+                  customTile(
+                    context,
+                    title: "callBtnLbl".translate(context),
                     onTap: () async {
-                  var number1 = state.companyData.companyTel1;
-                  var number2 = state.companyData.companyTel2;
+                      var number1 = state.companyData.companyTel1;
+                      var number2 = state.companyData.companyTel2;
 
-                  UiUtils.showBlurredDialoge(context,
-                      dialoge: BlurredDialogBox(
-                        title: "chooseNumber".translate(context),
-                        showCancelButton: false,
-                        barrierDismissible: true,
-                        acceptTextColor: context.color.buttonColor,
-                        content: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            ListTile(
-                              title: CustomText(
-                                number1.toString(),
-                                textAlign: TextAlign.center,
-                              ),
-                              onTap: () async {
-                                await launchUrl(Uri.parse("tel:$number1"));
-                              },
-                            ),
-                            if (number2 != null)
+                      UiUtils.showBlurredDialoge(
+                        context,
+                        dialoge: BlurredDialogBox(
+                          title: "chooseNumber".translate(context),
+                          showCancelButton: false,
+                          barrierDismissible: true,
+                          acceptTextColor: context.color.buttonColor,
+                          content: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
                               ListTile(
                                 title: CustomText(
-                                  number2.toString(),
+                                  number1.toString(),
                                   textAlign: TextAlign.center,
                                 ),
                                 onTap: () async {
-                                  await launchUrl(Uri.parse("tel:$number2"));
+                                  await launchUrl(Uri.parse("tel:$number1"));
                                 },
                               ),
-                          ],
+                              if (number2 != null)
+                                ListTile(
+                                  title: CustomText(
+                                    number2.toString(),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                  onTap: () async {
+                                    await launchUrl(Uri.parse("tel:$number2"));
+                                  },
+                                ),
+                            ],
+                          ),
                         ),
-                      ));
-                }, svgImagePath: AppIcons.call),
-                customTile(context, title: "companyEmailLbl".translate(context),
+                      );
+                    },
+                    svgImagePath: AppIcons.call,
+                  ),
+                  customTile(
+                    context,
+                    title: "companyEmailLbl".translate(context),
                     onTap: () {
-                  var email = state.companyData.companyEmail;
-                  showEmailDialog(email);
-                }, svgImagePath: AppIcons.message)
-              ],
-            ),
-          );
-        } else if (state is CompanyFetchFailure) {
-          return Center(
-            child: CustomText(state.errMsg),
-          );
-        } else {
-          return const SizedBox.shrink();
-        }
-      }),
+                      var email = state.companyData.companyEmail;
+                      showEmailDialog(email);
+                    },
+                    svgImagePath: AppIcons.message,
+                  ),
+                ],
+              ),
+            );
+          } else if (state is CompanyFetchFailure) {
+            return Center(child: CustomText(state.errMsg));
+          } else {
+            return const SizedBox.shrink();
+          }
+        },
+      ),
     );
   }
 
   Widget contactUsData() {
     return BlocBuilder<SettingsPagesCubit, SettingsPagesState>(
-        builder: (context, state) {
-      if (state is SettingsPagesFetchProgress) {
-        return Center(
-          child: UiUtils.progress(
-              normalProgressColor: context.color.territoryColor),
-        );
-      } else if (state is SettingsPagesFetchSuccess) {
-        return contentWidget(state, context);
-      } else if (state is SettingsPagesFetchFailure) {
-        return NoDataFound(
-          onTap: fetchSettingsPagesData,
-        );
-      } else {
-        return const SizedBox.shrink();
-      }
-    });
+      builder: (context, state) {
+        if (state is SettingsPagesFetchProgress) {
+          return Center(
+            child: UiUtils.progress(
+              normalProgressColor: context.color.territoryColor,
+            ),
+          );
+        } else if (state is SettingsPagesFetchSuccess) {
+          return contentWidget(state, context);
+        } else if (state is SettingsPagesFetchFailure) {
+          return NoDataFound(onTap: fetchSettingsPagesData);
+        } else {
+          return const SizedBox.shrink();
+        }
+      },
+    );
   }
 
   Widget contentWidget(SettingsPagesFetchSuccess state, BuildContext context) {
@@ -179,10 +192,7 @@ class ContactUsState extends State<ContactUs> {
           return {'border': '0.5px solid grey'};
         }
         if (element.localName == 'h5') {
-          return {
-            'max-lines': '2',
-            'text-overflow': 'ellipsis',
-          };
+          return {'max-lines': '2', 'text-overflow': 'ellipsis'};
         }
         return null;
       },
@@ -191,18 +201,19 @@ class ContactUsState extends State<ContactUs> {
 
   void showEmailDialog(email) {
     Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => EmailSendWidget(email: email),
-        ));
+      context,
+      MaterialPageRoute(builder: (context) => EmailSendWidget(email: email)),
+    );
   }
 
-  Widget customTile(BuildContext context,
-      {required String title,
-      required String svgImagePath,
-      Function(dynamic value)? onTapSwitch,
-      dynamic switchValue,
-      required VoidCallback onTap}) {
+  Widget customTile(
+    BuildContext context, {
+    required String title,
+    required String svgImagePath,
+    Function(dynamic value)? onTapSwitch,
+    dynamic switchValue,
+    required VoidCallback onTap,
+  }) {
     return GestureDetector(
       onTap: onTap,
       child: Row(
@@ -217,13 +228,14 @@ class ContactUsState extends State<ContactUs> {
               borderRadius: BorderRadius.circular(10),
             ),
             child: FittedBox(
-                fit: BoxFit.none,
-                child: UiUtils.getSvg(svgImagePath,
-                    color: context.color.territoryColor)),
+              fit: BoxFit.none,
+              child: UiUtils.getSvg(
+                svgImagePath,
+                color: context.color.territoryColor,
+              ),
+            ),
           ),
-          SizedBox(
-            width: 25,
-          ),
+          SizedBox(width: 25),
           CustomText(
             title,
             fontWeight: FontWeight.w700,
@@ -235,8 +247,9 @@ class ContactUsState extends State<ContactUs> {
             height: 32,
             decoration: BoxDecoration(
               border: Border.all(color: context.color.borderColor, width: 1.5),
-              color: context.color.secondaryColor
-                  .withValues(alpha: 0.10000000149011612),
+              color: context.color.secondaryColor.withValues(
+                alpha: 0.10000000149011612,
+              ),
               borderRadius: BorderRadius.circular(10),
             ),
             child: FittedBox(
@@ -260,10 +273,7 @@ class ContactUsState extends State<ContactUs> {
 class EmailSendWidget extends StatefulWidget {
   final String email;
 
-  const EmailSendWidget({
-    super.key,
-    required this.email,
-  });
+  const EmailSendWidget({super.key, required this.email});
 
   @override
   State<EmailSendWidget> createState() => _EmailSendWidgetState();
@@ -271,8 +281,9 @@ class EmailSendWidget extends StatefulWidget {
 
 class _EmailSendWidgetState extends State<EmailSendWidget> {
   final TextEditingController _subject = TextEditingController();
-  late final TextEditingController _email =
-      TextEditingController(text: widget.email);
+  late final TextEditingController _email = TextEditingController(
+    text: widget.email,
+  );
   final TextEditingController _text = TextEditingController();
 
   @override
@@ -286,13 +297,14 @@ class _EmailSendWidgetState extends State<EmailSendWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: UiUtils.buildAppBar(context,
-          showBackButton: true, title: "sendEmail".translate(context)),
+      appBar: UiUtils.buildAppBar(
+        context,
+        showBackButton: true,
+        title: "sendEmail".translate(context),
+      ),
       backgroundColor: context.color.backgroundColor,
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(
-          20,
-        ),
+        padding: const EdgeInsets.all(20),
         physics: const BouncingScrollPhysics(),
         child: Column(
           spacing: 15,
@@ -314,19 +326,21 @@ class _EmailSendWidgetState extends State<EmailSendWidget> {
               hintText: "writeSomething".translate(context),
               minLine: 5,
             ),
-            SizedBox(
-              height: 5,
-            ),
-            UiUtils.buildButton(context, onPressed: () async {
-              Uri redirecturi = Uri(
+            SizedBox(height: 5),
+            UiUtils.buildButton(
+              context,
+              onPressed: () async {
+                Uri redirecturi = Uri(
                   scheme: 'mailto',
                   path: _email.text,
-                  query: 'subject=${_subject.text}&body=${_text.text}');
-              await launchUrl(redirecturi);
-            },
-                height: 50,
-                buttonTitle: "sendEmail".translate(context),
-                radius: 5)
+                  query: 'subject=${_subject.text}&body=${_text.text}',
+                );
+                await launchUrl(redirecturi);
+              },
+              height: 50,
+              buttonTitle: "sendEmail".translate(context),
+              radius: 5,
+            ),
           ],
         ),
       ),

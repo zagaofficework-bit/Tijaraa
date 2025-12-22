@@ -130,17 +130,29 @@ class ItemModel {
     contact = json['contact'];
     type = json['type'];
     status = json['status'];
-    active = json['active'] == 0 ? false : true;
+    active = json['active'] is bool ? json['active'] : (json['active'] != 0);
     videoLink = json['video_link'];
-    isLike = json['is_liked'];
-    isFeature = json['is_feature'];
+    isLike = json['is_liked'] is bool
+        ? json['is_liked']
+        : (json['is_liked'] == 1);
+    isFeature = json['is_feature'] is bool
+        ? json['is_feature']
+        : (json['is_feature'] == 1);
     created = json['created_at'];
     itemType = json['item_type'];
     userId = json['user_id'];
     categoryId = json['category_id'];
-    isAlreadyOffered = json['is_already_offered'];
-    isAlreadyJobApplied = json['is_already_job_applied'];
-    isAlreadyReported = json['is_already_reported'];
+    isAlreadyOffered = json['is_already_offered'] is bool
+        ? json['is_already_offered']
+        : (json['is_already_offered'] == 1);
+
+    isAlreadyJobApplied = json['is_already_job_applied'] is bool
+        ? json['is_already_job_applied']
+        : (json['is_already_job_applied'] == 1);
+
+    isAlreadyReported = json['is_already_reported'] is bool
+        ? json['is_already_reported']
+        : (json['is_already_reported'] == 1);
     allCategoryIds = json['all_category_ids'];
     rejectedReason = json['rejected_reason'];
     city = json['city'];
@@ -315,8 +327,17 @@ class User {
     address = json['address'];
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
-    isVerified = json['is_verified'];
-    showPersonalDetails = json['show_personal_details'];
+    // This handles both boolean (true/false) and integer (1/0)
+    if (json['is_verified'] is bool) {
+      isVerified = json['is_verified'] ? 1 : 0;
+    } else {
+      isVerified = json['is_verified'];
+    }
+    if (json['show_personal_details'] is bool) {
+      showPersonalDetails = json['show_personal_details'] ? 1 : 0;
+    } else {
+      showPersonalDetails = json['show_personal_details'];
+    }
   }
 
   Map<String, dynamic> toJson() {

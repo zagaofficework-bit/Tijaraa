@@ -1,4 +1,3 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:async';
 
 import 'package:Tijaraa/app/routes.dart';
@@ -115,7 +114,11 @@ class HomeScreenState extends State<HomeScreen>
   }
 
   Stream<int> getUnreadNotificationsCount() {
-    final userId = HiveUtils.getUserId() ?? '';
+    final userId = HiveUtils.getUserId();
+    // If no user, return a stream that just emits 0
+    if (userId == null || userId.isEmpty) {
+      return Stream.value(0);
+    }
     return CloudFirestoreService().unreadCountStream(userId).map((count) {
       CloudState.cloudData['unreadCount'] = count;
       return count;
@@ -227,12 +230,18 @@ class HomeScreenState extends State<HomeScreen>
                                   ),
                               ],
                             ),
-                            onPressed: () async {
-                              await Navigator.pushNamed(
-                                context,
-                                Routes.notificationsScreen,
+                            onPressed: () {
+                              // CORRECTED: Simple redirection to the notification page
+                              UiUtils.checkUser(
+                                onNotGuest: () {
+                                  Navigator.pushNamed(
+                                    context,
+                                    Routes
+                                        .notificationPage, // Used your specific route name
+                                  );
+                                },
+                                context: context,
                               );
-                              await markNotificationsAsRead();
                             },
                           );
                         },
@@ -261,6 +270,28 @@ class HomeScreenState extends State<HomeScreen>
                     }
                     if (state is FetchHomeScreenSuccess) {
                       return homeScreenContent(state);
+                    }
+                    if (state is FetchHomeScreenFail) {
+                      return Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(20.0),
+                          child: Column(
+                            children: [
+                              const Icon(
+                                Icons.error_outline,
+                                color: Colors.red,
+                                size: 40,
+                              ),
+                              const SizedBox(height: 10),
+                              Text("Home Screen Error: ${state.error}"),
+                              TextButton(
+                                onPressed: () => loadInitialInfo(),
+                                child: const Text("Retry"),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
                     }
                     return const SizedBox.shrink();
                   },
@@ -411,7 +442,6 @@ class HomeScreenState extends State<HomeScreen>
               crossAxisCount: 2, // Single column grid
               mainAxisSpacing: 15.0,
               crossAxisSpacing: 15.0,
-              // You may adjust this aspect ratio as needed
             ),
           ),
         ],

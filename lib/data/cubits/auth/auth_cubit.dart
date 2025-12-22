@@ -69,7 +69,6 @@ class AuthCubit extends Cubit<AuthState> {
     }
   }
 
-  /// Update user profile
   Future<Map<String, dynamic>> updateUserData({
     String? name,
     String? email,
@@ -156,9 +155,6 @@ class AuthCubit extends Cubit<AuthState> {
     }
   }
 
-  // =======================================================
-  // EMAIL OTP
-  // =======================================================
   Future<void> sendEmailOtp(String email) async {
     try {
       emit(const AuthProgress());
@@ -190,14 +186,10 @@ class AuthCubit extends Cubit<AuthState> {
     }
   }
 
-  // =======================================================
-  // PHONE OTP (API-based)
-  // =======================================================
   Future<void> sendPhoneOtp(String phone, String countryCode) async {
     try {
       emit(const AuthProgress());
-      final fullPhone = "$countryCode$phone";
-      final response = await _repository.sendEmailOtp(fullPhone);
+      final response = await _repository.sendPhoneOtp("$countryCode", "$phone");
 
       if (response['status'] == true) {
         emit(AuthOtpSent(response['message'] ?? "OTP sent to phone"));
@@ -212,7 +204,7 @@ class AuthCubit extends Cubit<AuthState> {
   Future<void> verifyPhoneOtp(String phone, String otp) async {
     try {
       emit(const AuthProgress());
-      final response = await _repository.verifyEmailOtp(email: phone, otp: otp);
+      final response = await _repository.verifyPhoneOtp(phone, otp);
 
       if (response['status'] == true) {
         HiveUtils.setPhoneVerified(true);

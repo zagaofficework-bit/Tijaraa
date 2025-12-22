@@ -17,13 +17,14 @@ class FetchMyItemsSuccess extends FetchMyItemsState {
   final List<ItemModel> items;
   final String? getItemsWithStatus;
 
-  FetchMyItemsSuccess(
-      {required this.total,
-      required this.page,
-      required this.isLoadingMore,
-      required this.hasError,
-      required this.getItemsWithStatus,
-      required this.items});
+  FetchMyItemsSuccess({
+    required this.total,
+    required this.page,
+    required this.isLoadingMore,
+    required this.hasError,
+    required this.getItemsWithStatus,
+    required this.items,
+  });
 
   FetchMyItemsSuccess copyWith({
     int? total,
@@ -55,20 +56,27 @@ class FetchMyItemsCubit extends Cubit<FetchMyItemsState> {
   FetchMyItemsCubit() : super(FetchMyItemsInitial());
   final ItemRepository _itemRepository = ItemRepository();
 
-  void fetchMyItems({String? getItemsWithStatus}) async {
+  // Inside FetchMyItemsCubit class
+
+  void fetchMyItems({String? getItemsWithStatus, int? id}) async {
+    // Add id here
     try {
       emit(FetchMyItemsInProgress());
       DataOutput<ItemModel> result = await _itemRepository.fetchMyItems(
         page: 1,
         getItemsWithStatus: getItemsWithStatus,
+        id: id, // Pass the id to the repository
       );
-      emit(FetchMyItemsSuccess(
+      emit(
+        FetchMyItemsSuccess(
           hasError: false,
           isLoadingMore: false,
           page: 1,
           items: result.modelList,
           total: result.total,
-          getItemsWithStatus: getItemsWithStatus));
+          getItemsWithStatus: getItemsWithStatus,
+        ),
+      );
     } catch (e) {
       emit(FetchMyItemsFailed(e.toString()));
     }

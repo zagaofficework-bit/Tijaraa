@@ -5,6 +5,7 @@ import 'package:Tijaraa/data/repositories/system_repository.dart';
 import 'package:Tijaraa/utils/api.dart';
 import 'package:Tijaraa/utils/constant.dart';
 import 'package:Tijaraa/utils/network/network_availability.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Base state for system settings
@@ -169,15 +170,28 @@ class FetchSystemSettingsCubit extends Cubit<FetchSystemSettingsState> {
 
   /// Updates store URLs and iOS app ID
   void _updateStoreUrls(Map settings) {
-    Constant.playStoreUrl =
-        _getSetting(settings, SystemSetting.playStoreLink) ?? "";
-    Constant.appStoreUrl =
-        _getSetting(settings, SystemSetting.appStoreLink) ?? "";
-    Constant.iOSAppId =
-        (_getSetting(settings, SystemSetting.appStoreLink) ?? "")
-            .toString()
-            .split('/')
-            .last;
+    // 1. Fetch from settings
+    String? playLink = _getSetting(settings, SystemSetting.playStoreLink);
+    String? appLink = _getSetting(settings, SystemSetting.appStoreLink);
+
+    // 2. Only update if the fetched value is NOT null and NOT empty
+    // This preserves the hardcoded defaults in Constant class if API fails
+    if (playLink != null && playLink.isNotEmpty) {
+      Constant.playStoreUrl = playLink;
+    }
+
+    if (appLink != null && appLink.isNotEmpty) {
+      Constant.appStoreUrl = appLink;
+
+      // 3. Robust App ID extraction
+      try {
+        if (appLink.contains('id')) {
+          Constant.iOSAppId = appLink.split('id').last.split('?').first;
+        }
+      } catch (e) {
+        debugPrint("Error parsing iOS App ID: $e");
+      }
+    }
   }
 
   /// Updates authentication-related settings

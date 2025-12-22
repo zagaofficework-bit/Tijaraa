@@ -1677,19 +1677,25 @@ class _ChatScreenState extends State<ChatScreen>
 
   Widget offerWidget() {
     if (widget.itemOfferPrice != null) {
+      // Check if current user is the Buyer
       if (int.parse(HiveUtils.getUserId()!) == int.parse(widget.buyerId!)) {
         return Align(
           alignment: AlignmentDirectional.topEnd,
           child: Container(
-            constraints: BoxConstraints(maxHeight: 70),
-            margin: EdgeInsetsDirectional.only(top: 15, bottom: 15, end: 15),
-            padding: EdgeInsets.all(12),
+            // Use constraints for a 'ceiling' height rather than a fixed height
+            constraints: const BoxConstraints(maxHeight: 100),
+            margin: const EdgeInsetsDirectional.only(
+              top: 15,
+              bottom: 15,
+              end: 15,
+            ),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               border: Border.all(
                 color: context.color.territoryColor.withValues(alpha: 0.3),
               ),
               color: context.color.territoryColor.withValues(alpha: 0.17),
-              borderRadius: BorderRadius.only(
+              borderRadius: const BorderRadius.only(
                 topRight: Radius.circular(0),
                 topLeft: Radius.circular(8),
                 bottomRight: Radius.circular(8),
@@ -1697,6 +1703,7 @@ class _ChatScreenState extends State<ChatScreen>
               ),
             ),
             child: Column(
+              mainAxisSize: MainAxisSize.min, // Prevents vertical overflow
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 CustomText(
@@ -1714,18 +1721,23 @@ class _ChatScreenState extends State<ChatScreen>
           ),
         );
       } else {
+        // Current user is the Seller
         return Align(
           alignment: AlignmentDirectional.topStart,
           child: Container(
-            height: 72,
-            margin: EdgeInsetsDirectional.only(top: 15, bottom: 15, start: 15),
-            padding: EdgeInsets.all(12),
+            // Removed fixed height: 72 to prevent the 2px overflow error
+            margin: const EdgeInsetsDirectional.only(
+              top: 15,
+              bottom: 15,
+              start: 15,
+            ),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               border: Border.all(
                 color: context.color.territoryColor.withValues(alpha: 0.3),
               ),
               color: context.color.territoryColor.withValues(alpha: 0.17),
-              borderRadius: BorderRadius.only(
+              borderRadius: const BorderRadius.only(
                 topRight: Radius.circular(8),
                 topLeft: Radius.circular(0),
                 bottomRight: Radius.circular(8),
@@ -1733,6 +1745,7 @@ class _ChatScreenState extends State<ChatScreen>
               ),
             ),
             child: Column(
+              mainAxisSize: MainAxisSize.min, // Prevents vertical overflow
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 CustomText(
@@ -1751,7 +1764,7 @@ class _ChatScreenState extends State<ChatScreen>
         );
       }
     } else {
-      return SizedBox.shrink();
+      return const SizedBox.shrink();
     }
   }
 }
