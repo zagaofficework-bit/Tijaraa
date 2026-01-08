@@ -1,0 +1,507 @@
+{
+  "identity": "Tijaraa",
+  "responses": {
+
+    "keyword_intents": {
+      "greeting_intent": {
+        "keywords": ["hello", "hi", "hey", "नमस्ते", "مرحبا"],
+        "reply_path": ["responses", "faq_multilingual", "general", "q40", "answers"]
+      },
+      "create_account": {
+        "keywords": ["create account", "sign up", "register", "बनाऊँ", "تسجيل"],
+        "reply_path": ["responses", "faq_multilingual", "account", "q1", "answers"]
+      },
+      "otp_issue": {
+        "keywords": ["otp", "code", "not received", "ओटीपी", "كود"],
+        "reply_path": ["responses", "faq_multilingual", "account", "q2", "answers"]
+      },
+      "login_problem": {
+        "keywords": ["login", "sign in", "cannot access", "लॉगिन", "دخول"],
+        "reply_path": ["responses", "faq_multilingual", "account", "q3", "answers"]
+      },
+      "account_blocked": {
+        "keywords": ["blocked", "suspended", "banned", "ब्लॉक", "محظور"],
+        "reply_path": ["responses", "faq_multilingual", "account", "q4", "answers"]
+      },
+      "edit_profile": {
+        "keywords": ["edit profile", "change name", "photo", "बदलूँ", "تعديل الملف"],
+        "reply_path": ["responses", "faq_multilingual", "account", "q5", "answers"]
+      },
+      "delete_account": {
+        "keywords": ["delete", "logout", "remove account", "लॉगआउट", "حذف"],
+        "reply_path": ["responses", "faq_multilingual", "account", "q6", "answers"]
+      },
+      "what_is_kyc": {
+        "keywords": ["what is kyc", "verify why", "केवाईसी क्या", "ما هو التوثيق"],
+        "reply_path": ["responses", "faq_multilingual", "kyc", "q7", "answers"]
+      },
+      "how_to_kyc": {
+        "keywords": ["how to kyc", "verify now", "केवाईसी कैसे", "كيف أوثق"],
+        "reply_path": ["responses", "faq_multilingual", "kyc", "q8", "answers"]
+      },
+      "kyc_docs": {
+        "keywords": ["documents", "aadhaar", "emirates id", "डॉक्यूमेंट", "وثائق"],
+        "reply_path": ["responses", "faq_multilingual", "kyc", "q9", "answers"]
+      },
+      "kyc_time": {
+        "keywords": ["how long kyc", "verification time", "कितना समय", "كم يستغرق"],
+        "reply_path": ["responses", "faq_multilingual", "kyc", "q10", "answers"]
+      },
+      "kyc_rejected": {
+        "keywords": ["kyc rejected", "failed", "रिजेक्ट", "فشل التوثيق"],
+        "reply_path": ["responses", "faq_multilingual", "kyc", "q11", "answers"]
+      },
+      "safety_tips": {
+        "keywords": ["stay safe", "scam alert", "सुरक्षित", "نصائح الأمان"],
+        "reply_path": ["responses", "faq_multilingual", "kyc", "q12", "answers"]
+      },
+      "post_ad": {
+        "keywords": ["post ad", "sell item", "ऐड", "نشر إعلان"],
+        "reply_path": ["responses", "faq_multilingual", "ads", "q13", "answers"]
+      },
+      "ad_views": {
+        "keywords": ["no views", "replies", "व्यू", "مشاهدات"],
+        "reply_path": ["responses", "faq_multilingual", "ads", "q14", "answers"]
+      },
+      "ad_rejected": {
+        "keywords": ["ad rejected", "removed", "हटाया", "إعلان مرفوض"],
+        "reply_path": ["responses", "faq_multilingual", "ads", "q15", "answers"]
+      },
+      "edit_ad": {
+        "keywords": ["edit ad", "change price", "एडिट", "تعديل الإعلان"],
+        "reply_path": ["responses", "faq_multilingual", "ads", "q16", "answers"]
+      },
+      "delete_ad": {
+        "keywords": ["delete ad", "sold", "बिक गया", "حذف الإعلان"],
+        "reply_path": ["responses", "faq_multilingual", "ads", "q17", "answers"]
+      },
+      "repost_ad": {
+        "keywords": ["repost", "refresh", "दोबारा", "إعادة نشر"],
+        "reply_path": ["responses", "faq_multilingual", "ads", "q18", "answers"]
+      },
+      "contact_seller": {
+        "keywords": ["contact", "call seller", "संपर्क", "اتصال"],
+        "reply_path": ["responses", "faq_multilingual", "chat", "q19", "answers"]
+      },
+      "chat_issue": {
+        "keywords": ["chat not working", "delivery", "मैसेज", "دردشة"],
+        "reply_path": ["responses", "faq_multilingual", "chat", "q20", "answers"]
+      },
+      "negotiation": {
+        "keywords": ["negotiate", "price cut", "मोलभाव", "تفاوض"],
+        "reply_path": ["responses", "faq_multilingual", "chat", "q21", "answers"]
+      },
+      "rude_user": {
+        "keywords": ["rude", "threatening", "बदतमीज़ी", "إساءة"],
+        "reply_path": ["responses", "faq_multilingual", "chat", "q22", "answers"]
+      },
+      "delivery_payment": {
+        "keywords": ["delivery", "online payment", "डिलीवरी", "توصيل"],
+        "reply_path": ["responses", "faq_multilingual", "payments", "q23", "answers"]
+      },
+      "scam_paid": {
+        "keywords": ["paid no item", "scammed", "पैसे", "تعرضت للاحتيال"],
+        "reply_path": ["responses", "faq_multilingual", "payments", "q24", "answers"]
+      },
+      "avoid_scams": {
+        "keywords": ["avoid scams", "fraud check", "ठगी", "تجنب الاحتيال"],
+        "reply_path": ["responses", "faq_multilingual", "payments", "q25", "answers"]
+      },
+      "refunds": {
+        "keywords": ["refund", "money back", "रिफंड", "استرجاع"],
+        "reply_path": ["responses", "faq_multilingual", "payments", "q26", "answers"]
+      },
+      "search_near": {
+        "keywords": ["near me", "location search", "आसपास", "قريب مني"],
+        "reply_path": ["responses", "faq_multilingual", "search", "q27", "answers"]
+      },
+      "city_not_found": {
+        "keywords": ["city not found", "area", "शहर", "مدينة"],
+        "reply_path": ["responses", "faq_multilingual", "search", "q28", "answers"]
+      },
+      "save_search": {
+        "keywords": ["save search", "alerts", "अलर्ट", "حفظ البحث"],
+        "reply_path": ["responses", "faq_multilingual", "search", "q29", "answers"]
+      },
+      "limits": {
+        "keywords": ["posting limit", "free ads", "लिमिट", "حد الإعلانات"],
+        "reply_path": ["responses", "faq_multilingual", "premium", "q30", "answers"]
+      },
+      "boost_ad": {
+        "keywords": ["featured", "boost", "प्रमोट", "تميز إعلانك"],
+        "reply_path": ["responses", "faq_multilingual", "premium", "q31", "answers"]
+      },
+      "packages": {
+        "keywords": ["buy package", "plan", "पैकेज", "باقات"],
+        "reply_path": ["responses", "faq_multilingual", "premium", "q32", "answers"]
+      },
+      "promo_refund": {
+        "keywords": ["promotion refund", "double charge", "वापस", "استرجاع الرسوم"],
+        "reply_path": ["responses", "faq_multilingual", "premium", "q33", "answers"]
+      },
+      "report_scam": {
+        "keywords": ["report ad", "fake item", "फेक", "إبلاغ"],
+        "reply_path": ["responses", "faq_multilingual", "legal", "q34", "answers"]
+      },
+      "block_user": {
+        "keywords": ["block user", "stop messages", "रोकूँ", "حظر"],
+        "reply_path": ["responses", "faq_multilingual", "legal", "q35", "answers"]
+      },
+      "privacy": {
+        "keywords": ["privacy", "personal data", "जानकारी", "خصوصية"],
+        "reply_path": ["responses", "faq_multilingual", "legal", "q36", "answers"]
+      },
+      "app_crash": {
+        "keywords": ["app crashing", "slow", "क्रैश", "تعليق التطبيق"],
+        "reply_path": ["responses", "faq_multilingual", "technical", "q37", "answers"]
+      },
+      "photo_error": {
+        "keywords": ["upload error", "photo fail", "फोटो", "رفع الصور"],
+        "reply_path": ["responses", "faq_multilingual", "technical", "q38", "answers"]
+      },
+      "notifications": {
+        "keywords": ["notification not coming", "alerts", "नोटिफिकेशन", "إشعارات"],
+        "reply_path": ["responses", "faq_multilingual", "technical", "q39", "answers"]
+      },
+      "about_tijaraa": {
+        "keywords": ["what is tijara", "countries", "कहाँ", "ما هو تيجارا"],
+        "reply_path": ["responses", "faq_multilingual", "general", "q40", "answers"]
+      },
+      "quality": {
+        "keywords": ["quality check", "responsible", "ज़िम्मेदारी", "جودة"],
+        "reply_path": ["responses", "faq_multilingual", "general", "q41", "answers"]
+      },
+      "support": {
+        "keywords": ["customer support", "help", "मदद", "دعم"],
+        "reply_path": ["responses", "faq_multilingual", "general", "q42", "answers"]
+      },
+      "languages": {
+        "keywords": ["languages", "hindi", "arabic", "भाषा", "لغات"],
+        "reply_path": ["responses", "faq_multilingual", "general", "q43", "answers"]
+      }
+    },
+    "faq_multilingual": {
+      "account": {
+        "q1": {
+          "answers": {
+            "en": "Go to the Tijara app, tap Sign Up, enter your mobile/email, verify with OTP, and add your details. Account created instantly!",
+            "hi": "Tijara ऐप खोलें, Sign Up पर टैप करें, मोबाइल नंबर/ईमेल डालकर OTP से वेरिफाई करें, फिर नाम और शहर भरें।",
+            "ar": "افتح تطبيق تيجارا، اضغط تسجيل جديد، أدخل رقم الجوال أو الإيميل، ثم أكد الكود وسيتم إنشاء حسابك مباشرة."
+          }
+        },
+        "q2": {
+          "answers": {
+            "en": "Check number accuracy, wait 2 mins, check spam. If no OTP, tap 'Resend OTP' or check your network.",
+            "hi": "नंबर/ईमेल चेक करें, 1–2 मिनट इंतज़ार करें। अगर OTP नहीं आता, तो Resend OTP दबाएँ या अच्छे नेटवर्क पर कोशिश करें।",
+            "ar": "تأكد أن الرقم صحيح، انتظر دقيقة أو دقيقتين، ثم اضغط إرسال الكود مرة أخرى مع اتصال إنترنت ثابت."
+          }
+        },
+        "q3": {
+          "answers": {
+            "en": "Use 'Forgot password / Login with OTP'. Ensure same number/email is used and app is updated.",
+            "hi": "Forgot password / Login with OTP का उपयोग करें, वही नंबर डालें और ऐप को अपडेट रखें।",
+            "ar": "جرّب تسجيل الدخول برمز OTP أو خيار نسيت كلمة المرور، وتأكد أنك تستخدم نفس البيانات المسجلة."
+          }
+        },
+        "q4": {
+          "answers": {
+            "en": "Accounts are suspended for policy violations or fraud. Appeal by contacting support from your registered email.",
+            "hi": "पॉलिसी तोड़ने या धोखाधड़ी पर अकाउंट सस्पेंड हो सकता है। अपील के लिए रजिस्टर्ड ईमेल से सपोर्ट को लिखें।",
+            "ar": "قد يتم إيقاف الحساب بسبب مخالفة الشروط، تواصل مع الدعم من رقمك المسجل لمراجعة حالتك."
+          }
+        },
+        "q5": {
+          "answers": {
+            "en": "Open 'My Profile', tap 'Edit', update your name, photo, or location and save.",
+            "hi": "My Profile खोलें, Edit पर टैप करें, नाम, फोटो और लोकेशन अपडेट करें और सेव करें।",
+            "ar": "من صفحة ملفي اضغط تعديل، غيّر الاسم والصورة والمدينة ثم احفظ التغييرات."
+          }
+        },
+        "q6": {
+          "answers": {
+            "en": "Go to Settings -> Account. Choose 'Logout' to sign out, or 'Delete account' to permanently remove data.",
+            "hi": "Settings -> Account में जाएँ। लॉगआउट के लिए Logout और स्थायी रूप से हटाने के लिए Delete account चुनें।",
+            "ar": "من الإعدادات -> الحساب يمكنك تسجيل الخروج، أو اختيار حذف الحساب نهائياً."
+          }
+        }
+      },
+      "kyc": {
+        "q7": {
+          "answers": {
+            "en": "KYC is an ID check confirming your identity. A verified badge increases trust and helps you sell faster.",
+            "hi": "KYC एक आईडी चेक है जिससे आपकी पहचान कन्फर्म होती है। वेरिफाइड बैज से सामान जल्दी बिकता है।",
+            "ar": "التحقق KYC هو تأكيد لهويتك، وعلامة الحساب الموثق تزيد ثقة المستخدمين وتساعدك على البيع أسرع."
+          }
+        },
+        "q8": {
+          "answers": {
+            "en": "Go to Profile > Verify now. Allow camera, take a selfie and clear photos of your Govt ID (front & back).",
+            "hi": "My Profile में जाएँ, Verify now पर टैप करें, सेल्फी लें और आईडी के दोनों तरफ की फोटो सबमिट करें।",
+            "ar": "من ملفك اضغط تحقق الآن، التقط صورة لك ثم لهويتك من الأمام والخلف وأرسلها للمراجعة."
+          }
+        },
+        "q9": {
+          "answers": {
+            "en": "Accepted: Aadhaar, License, Passport, Voter ID (India) or Emirates ID, Passport (UAE). Use original documents.",
+            "hi": "Aadhaar, License, Passport, Voter ID (India) या Emirates ID (UAE) मान्य हैं। ओरिजिनल फोटो ही डालें।",
+            "ar": "يمكن استخدام الهوية الوطنية أو رخصة القيادة أو جواز السفر، ويجب رفع صور واضحة للأصل."
+          }
+        },
+        "q10": {
+          "answers": {
+            "en": "Verification usually takes a few hours during working days. Holiday requests are processed next working day.",
+            "hi": "वेरिफिकेशन में कुछ घंटे लगते हैं; छुट्टी के दिन की रिक्वेस्ट अगले वर्किंग डे में प्रोसेस होगी।",
+            "ar": "عادة يتم التحقق خلال ساعات العمل، وإذا قدّمت الطلب في عطلة قد يتأخر لليوم التالي."
+          }
+        },
+        "q11": {
+          "answers": {
+            "en": "Usually due to blurred images, face mismatch, or photocopies. Resubmit with clear photos in good light.",
+            "hi": "धुंधली फोटो या फोटोकॉपी के कारण रिजेक्ट हो सकता है। अच्छे प्रकाश में साफ़ फोटो के साथ दोबारा सबमिट करें।",
+            "ar": "غالباً بسبب صورة غير واضحة أو اختلاف بين الصورة والهوية، أعد المحاولة بصور أصلية."
+          }
+        },
+        "q12": {
+          "answers": {
+            "en": "Meet in busy public places. Don't share bank details or pay in advance for suspicious deals.",
+            "hi": "हमेशा भीड़-भाड़ वाली जगह मिलें। पर्सनल जानकारी शेयर न करें और एडवांस पेमेंट से बचें।",
+            "ar": "حدّد اللقاء في مكان عام، ولا ترسل بياناتك البنكية ولا تدفع مقدماً لعروض مبالغ فيها."
+          }
+        }
+      },
+      "ads": {
+        "q13": {
+          "answers": {
+            "en": "Tap 'Post ad', choose category, add title, description, price, location, and photos, then submit.",
+            "hi": "Post ad पर टैप करें, कैटेगरी चुनें, टाइटल, दाम और फोटो जोड़कर सबमिट करें।",
+            "ar": "اضغط نشر إعلان، اختر الفئة، أضف السعر والموقع مع صور واضحة ثم أرسل للمراجعة."
+          }
+        },
+        "q14": {
+          "answers": {
+            "en": "Use bright photos and fair prices. Ensure correct category and refresh the ad regularly.",
+            "hi": "साफ़ फोटो और सही दाम रखें। सही कैटेगरी चुनें और समय-समय पर ऐड को रिफ्रेश करें।",
+            "ar": "استخدم صوراً واضحة وسعراً منطقياً وضع الإعلان في الفئة الصحيحة لتحصل على ردود أكثر."
+          }
+        },
+        "q15": {
+          "answers": {
+            "en": "Ads are removed for prohibited items, wrong categories, offensive content, or duplicates. Edit to comply.",
+            "hi": "प्रतिबंधित सामान या गलत कैटेगरी पर ऐड हटाया जा सकता है। नियम सुधारें और फिर से पोस्ट करें।",
+            "ar": "نحذف الإعلانات المخالفة مثل السلع الممنوعة، عدّل إعلانك ليتوافق مع السياسة ثم أعد نشره."
+          }
+        },
+        "q16": {
+          "answers": {
+            "en": "Go to 'My Ads', select the ad, tap 'Edit', update details and save.",
+            "hi": "My Ads में जाएँ, ऐड चुनें, Edit पर टैप करें, डिटेल बदलें और सेव करें।",
+            "ar": "من إعلاناتي اختر الإعلان ثم اضغط تعديل، حدّث البيانات أو الصور واحفظ."
+          }
+        },
+        "q17": {
+          "answers": {
+            "en": "In 'My Ads', select the ad, tap 'Mark as sold' or 'Delete' and confirm.",
+            "hi": "My Ads खोलें, ऐड चुनें, Mark as sold या Delete पर टैप करें।",
+            "ar": "من إعلاناتي اختر الإعلان ثم ضع علامة تم البيع أو احذفه تماماً."
+          }
+        },
+        "q18": {
+          "answers": {
+            "en": "Yes, refresh existing ads if available or create a new ad with updated details if it's not a duplicate.",
+            "hi": "हाँ, रिफ्रेश फीचर इस्तेमाल करें या नई फोटो के साथ नया ऐड बनाएँ (डुप्लिकेट न हो)।",
+            "ar": "يمكنك تجديد الإعلان أو إنشاء إعلان جديد بتفاصيل وصور محدثة."
+          }
+        }
+      },
+      "chat": {
+        "q19": {
+          "answers": {
+            "en": "Open the ad and tap 'Chat' or 'Call'. Ask about condition and price; never share OTP/PIN.",
+            "hi": "ऐड खोलें और Chat या Call बटन दबाएँ। प्रोडक्ट की जानकारी लें, पर OTP/PIN शेयर न करें।",
+            "ar": "افتح الإعلان واضغط دردشة أو اتصال، واسأل عن حالة السلعة بدون مشاركة أي بيانات بنكية."
+          }
+        },
+        "q20": {
+          "answers": {
+            "en": "Check internet and app version. If a user blocked you or deleted the ad, messages won't deliver.",
+            "hi": "इंटरनेट चेक करें। अगर यूज़र ने ब्लॉक किया है या ऐड हटा दिया है, तो मैसेज नहीं जाएगा।",
+            "ar": "تأكد من اتصالك بالإنترنت، وقد لا تصل رسائلك إذا قام الطرف الآخر بحظرك أو حذف إعلانه."
+          }
+        },
+        "q21": {
+          "answers": {
+            "en": "Tijara is a platform; negotiate directly with the seller in chat or meeting to agree on a price.",
+            "hi": "Tijara सिर्फ खरीदार-विक्रेता को मिलाता है। आप सीधे चैट या मीटिंग में दाम तय कर सकते हैं।",
+            "ar": "التفاوض على السعر يتم بينكما مباشرة عبر الدردشة أو عند اللقاء حسب حالة السلعة."
+          }
+        },
+        "q22": {
+          "answers": {
+            "en": "Stop chatting and use 'Block/Report'. If unsafe offline, contact police and share evidence.",
+            "hi": "बात बंद करें और 'Block/Report' करें। खतरा लगे तो पुलिस को स्क्रीनशॉट के साथ रिपोर्ट करें।",
+            "ar": "أوقف المحادثة فوراً، قم بحظر الحساب، وإذا شعرت بخطر حقيقي تواصل مع الشرطة."
+          }
+        }
+      },
+      "payments": {
+        "q23": {
+          "answers": {
+            "en": "Delivery varies by region. If unavailable, pay only after checking the item; prefer cash.",
+            "hi": "डिलीवरी देश पर निर्भर है। सुविधा न हो तो सामान देखकर ही कैश या भरोसेमंद तरीके से पेमेंट करें।",
+            "ar": "بعض البلدان قد لا تدعم التوصيل، لذلك ادفع فقط بعد فحص السلعة مباشرة وبطريقة آمنة."
+          }
+        },
+        "q24": {
+          "answers": {
+            "en": "Report the user and ad to Tijara and authorities. Tijara cannot guarantee money recovery for direct deals.",
+            "hi": "यूज़र और ऐड को रिपोर्ट करें और सबूत संभालें। डायरेक्ट डील के लिए Tijara रिफंड गारंटी नहीं देता।",
+            "ar": "احتفظ بالأدلة وبلّغ عن الحساب والجهات الأمنية، فتيجارا لا يضمن استرجاع المبالغ في الصفقات المباشرة."
+          }
+        },
+        "q25": {
+          "answers": {
+            "en": "Never share OTP/PIN. Avoid advance payments to unknown sellers; meet in public to check items.",
+            "hi": "OTP/PIN किसी को न दें। एडवांस पेमेंट से बचें और सार्वजनिक जगह मिलकर सामान चेक करें।",
+            "ar": "لا تشارك رموز التحقق، وتجنب الدفع مقدماً، وافحص السلعة في مكان عام وآمن."
+          }
+        },
+        "q26": {
+          "answers": {
+            "en": "Refunds depend on the seller's agreement for direct deals. Tijara usually doesn't handle these payments.",
+            "hi": "रिफंड दूसरे पक्ष की सहमति पर है। ऐप के बाहर पेमेंट के लिए सीधे उसी व्यक्ति से बात करनी होगी।",
+            "ar": "أي استرجاع يكون باتفاق بين البائع والمشتري فقط، تيجارا لا يحتفظ بأموالك في الإعلانات العادية."
+          }
+        }
+      },
+      "search": {
+        "q27": {
+          "answers": {
+            "en": "Use the search bar, allow location or set it manually, and apply filters like price or distance.",
+            "hi": "सर्च बार में लिखें, लोकेशन सेट करें और प्राइस/दूरी के फिल्टर लगाएँ।",
+            "ar": "استخدم خانة البحث واسمح بالموقع، ثم فعّل الفلاتر مثل السعر لعرض النتائج الأقرب."
+          }
+        },
+        "q28": {
+          "answers": {
+            "en": "Try typing full name or nearby major cities. Mention exact area details in your ad description.",
+            "hi": "पूरा नाम लिखें या नज़दीकी बड़ा शहर चुनें। सही एरिया की जानकारी डिस्क्रिप्शन में लिख दें।",
+            "ar": "إذا لم يظهر اسم منطقتك اختر أقرب مدينة كبيرة واذكر الحي بالتفصيل في وصف الإعلان."
+          }
+        },
+        "q29": {
+          "answers": {
+            "en": "Tap 'Save search' or the bell icon. We will notify you when matching ads are posted.",
+            "hi": "'Save search' या बेल आइकन पर टैप करें। मिलते-जुलते ऐड आने पर आपको नोटिफिकेशन मिलेगा।",
+            "ar": "بعد البحث اضغط حفظ البحث أو أيقونة الجرس لتصلك تنبيهات عند إضافة إعلانات مشابهة."
+          }
+        }
+      },
+      "premium": {
+        "q30": {
+          "answers": {
+            "en": "There may be free limits per category. Beyond that, you may need a package for additional ads.",
+            "hi": "हर कैटेगरी के लिए फ्री लिमिट हो सकती है। लिमिट पार होने पर एक्स्ट्रा ऐड के लिए पेमेंट करना पड़ सकता है।",
+            "ar": "قد يكون هناك عدد محدد من الإعلانات المجانية، وبعدها تحتاج لشراء باقة حسب سياسة بلدك."
+          }
+        },
+        "q31": {
+          "answers": {
+            "en": "Boosted ads appear higher in search results, helping you get more views and sell faster.",
+            "hi": "Boosted ऐड सर्च में ऊपर दिखता है, जिससे व्यू और रिस्पॉन्स तेज़ी से बढ़ते हैं।",
+            "ar": "الإعلان المميز أو البوست يكون مدفوعاً ليظهر في أعلى النتائج ويحصل على مشاهدات أكثر."
+          }
+        },
+        "q32": {
+          "answers": {
+            "en": "In 'My Ads', tap 'Promote/Boost', choose a plan, and pay via available local methods.",
+            "hi": "My Ads में 'Promote/Boost' पर टैप करें, प्लान चुनें और कार्ड/UPI से पेमेंट करें।",
+            "ar": "من صفحة إعلاناتي اضغط ترويج، اختر الباقة وادفع بالطرق المتاحة ليتم تمييز إعلانك."
+          }
+        },
+        "q33": {
+          "answers": {
+            "en": "Promotions are usually non-refundable once active, unless there's a technical error or double charge.",
+            "hi": "प्रमोशन आमतौर पर नॉन-रिफंडेबल होते हैं, सिवाय डबल चार्ज या तकनीकी गलती के मामले में।",
+            "ar": "غالباً لا يمكن استرجاع رسوم الترويج بعد تفعيلها إلا عند حدوث خطأ تقني واضح."
+          }
+        }
+      },
+      "legal": {
+        "q34": {
+          "answers": {
+            "en": "Open the ad and tap 'Report'. Select a reason like fraud or fake product and submit.",
+            "hi": "ऐड खोलकर 'Report' पर टैप करें, कारण (धोखाधड़ी/नकली) चुनें और सबमिट करें।",
+            "ar": "افتح الإعلان واضغط إبلاغ، حدد السبب مثل احتيال أو سلعة ممنوعة للمراجعة."
+          }
+        },
+        "q35": {
+          "answers": {
+            "en": "In the chat or profile, tap 'Block user'. They won't be able to call or message you through Tijara.",
+            "hi": "चैट या प्रोफ़ाइल पर 'Block user' टैप करें। वे फिर आपको मैसेज या कॉल नहीं कर पाएंगे।",
+            "ar": "من صفحة المحادثة اضغط حظر المستخدم، ولن يتمكن من مراسلتك داخل تيجارا."
+          }
+        },
+        "q36": {
+          "answers": {
+            "en": "Tijara doesn't share data with other users except as required by law or to prevent fraud.",
+            "hi": "Tijara आपकी जानकारी किसी यूज़र से शेयर नहीं करता, सिवाय सुरक्षा या कानूनी कारणों के।",
+            "ar": "بياناتك تُستخدم لتشغيل الخدمة فقط ولا يتم مشاركتها إلا إذا طلب القانون ذلك."
+          }
+        }
+      },
+      "technical": {
+        "q37": {
+          "answers": {
+            "en": "Clear cache, update to the latest version, and ensure stable internet and storage.",
+            "hi": "ऐप cache क्लियर करें, अपडेट करें और फ़ोन में स्टोरेज व सही नेटवर्क सुनिश्चित करें।",
+            "ar": "امسح بيانات الكاش، وتأكد من سرعة الإنترنت وتحديث تيجارا لآخر إصدار."
+          }
+        },
+        "q38": {
+          "answers": {
+            "en": "Check image size and format. Ensure your connection is stable and the photo follows guidelines.",
+            "hi": "फोटो का साइज और फॉर्मेट चेक करें। सही नेटवर्क के साथ दोबारा कोशिश करें।",
+            "ar": "تأكد أن حجم وصيغة الصورة مسموح بها، وحاول إعادة الرفع بعد تحسين الاتصال."
+          }
+        },
+        "q39": {
+          "answers": {
+            "en": "Enable notifications in phone settings and app. Disable 'Do Not Disturb' and stay logged in.",
+            "hi": "फोन सेटिंग और ऐप में नोटिफिकेशन ऑन करें। 'Do Not Disturb' बंद रखें।",
+            "ar": "فعّل إشعارات تيجارا من إعدادات الهاتف والتطبيق، وأوقف وضع عدم الإزعاج."
+          }
+        }
+      },
+      "general": {
+        "q40": {
+          "answers": {
+            "en": "Tijara is a marketplace for buying/selling new and used items. Available in India, UAE, and more.",
+            "hi": "Tijara एक मार्केटप्लेस है जहाँ आप नए-पुराने सामान खरीद-बेच सकते हैं। यह भारत, UAE में उपलब्ध है।",
+            "ar": "تيجارا هو سوق إعلانات لبيع وشراء السلع الجديدة والمستعملة، ومتاح في عدة دول."
+          }
+        },
+        "q41": {
+          "answers": {
+            "en": "No, items are listed by users. Buyers must check condition and documents before paying.",
+            "hi": "नहीं, सामान यूज़र्स लिस्ट करते हैं। पेमेंट से पहले खरीदार को खुद सब चेक करना चाहिए।",
+            "ar": "لا، تيجارا لا يضمن حالة السلع المعروضة، عليك فحصها بنفسك قبل الدفع."
+          }
+        },
+        "q42": {
+          "answers": {
+            "en": "Use 'Help / Support' in the app to chat with us or email for complex issues.",
+            "hi": "ऐप के अंदर 'Help / Support' से चैट करें या ईमेल के ज़रिए संपर्क करें।",
+            "ar": "استخدم قسم المساعدة داخل التطبيق للدردشة مع المساعد أو إرسال إيميل."
+          }
+        },
+        "q43": {
+          "answers": {
+            "en": "We support major languages like English, Hindi, and Arabic for automated help.",
+            "hi": "हम मुख्य रूप से English, Hindi और Arabic में ऑटोमेटेड हेल्प देते हैं।",
+            "ar": "يوفّر تيجارا المساعدة الآلية باللغات الشائعة مثل الإنجليزية والهنديّة والعربية."
+          }
+        }
+      }
+    }
+  }
+}
