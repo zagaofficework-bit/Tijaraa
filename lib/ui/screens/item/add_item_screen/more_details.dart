@@ -79,7 +79,8 @@ class _AddMoreDetailsScreenState extends CloudState<AddMoreDetailsScreen>
             var match = item.allTranslatedCustomFields!
                 .where(
                   (translation) =>
-                      translation['id'] == field.field['id'] &&
+                      translation['id'].toString() ==
+                          field.field['id'].toString() &&
                       translation['language_id'] == field.field['language_id'],
                 )
                 .toList();
@@ -100,65 +101,71 @@ class _AddMoreDetailsScreenState extends CloudState<AddMoreDetailsScreen>
   void initState() {
     super.initState();
     _formKey = GlobalKey<FormState>();
-    Future.delayed(Duration.zero, () {
-      moreDetailDynamicFields = context.read<FetchCustomFieldsCubit>().getFields().map((
-        field,
-      ) {
-        Map<String, dynamic> fieldData = field.toMap();
-        // Assuming 'getCloudData' returns the correct item based on 'edit_request'
 
-        // Check if 'item' and 'item.customFields' are not null before accessing them
+    Future.delayed(Duration.zero, () {
+      final fields = context.read<FetchCustomFieldsCubit>().getFields();
+
+      moreDetailDynamicFields = fields.map((field) {
+        Map<String, dynamic> fieldData = field.toMap();
+
         if (widget.isEdit ?? false) {
           ItemModel item = getCloudData('edit_request') as ItemModel;
 
-          // Use all_translated_custom_fields for all field types
           if (item.allTranslatedCustomFields != null) {
-            // Find all entries for this field ID
-            List<dynamic> fieldTranslations = item.allTranslatedCustomFields!
-                .where((translation) => translation['id'] == field.id)
+            // Use the safe list you created
+            List<dynamic> allTrans = List.from(item.allTranslatedCustomFields!);
+
+            List<dynamic> fieldTranslations = allTrans
+                .where((t) => t['id'].toString() == field.id.toString())
                 .toList();
-            // If language_id is present in fieldData, match it
+
             if (fieldData.containsKey('language_id')) {
               var langId = fieldData['language_id'];
               var match = fieldTranslations.firstWhere(
                 (t) => t['language_id'] == langId,
                 orElse: () => null,
               );
-              if (match != null && match['value'] != null) {
-                fieldData['value'] = match['value'];
-              }
-            } else if (fieldTranslations.isNotEmpty &&
-                fieldTranslations[0]['value'] != null) {
-              // If no language_id, just use the first match
+              if (match != null) fieldData['value'] = match['value'];
+            } else if (fieldTranslations.isNotEmpty) {
               fieldData['value'] = fieldTranslations[0]['value'];
             }
           }
         }
 
         fieldData['isEdit'] = widget.isEdit == true;
-        // For non-textbox fields, always use the original required value
-        fieldData['required'] = field.toMap()['required'];
+
+        // CREATE BUILDER
         CustomFieldBuilder customFieldBuilder = CustomFieldBuilder(fieldData);
+
+        // ATTACH STATE UPDATER BEFORE INIT
         customFieldBuilder.stateUpdater(setState);
+
+        // INITIALIZE
         customFieldBuilder.init();
+
         return customFieldBuilder;
       }).toList();
+
+      // UPDATE AND REFRESH UI
       updateDynamicFields();
-      setState(() {});
+      if (mounted) setState(() {});
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    languages =
-        context.watch<FetchSystemSettingsCubit>().getSetting(
-              SystemSetting.language,
-            )
-            as List? ??
-        [];
-    defaultLangCode = context.watch<FetchSystemSettingsCubit>().getSetting(
+    final langSetting = context.watch<FetchSystemSettingsCubit>().getSetting(
+      SystemSetting.language,
+    );
+
+    languages = langSetting is List ? langSetting : [];
+
+    final defLang = context.watch<FetchSystemSettingsCubit>().getSetting(
       SystemSetting.defaultLanguage,
     );
+
+    defaultLangCode = defLang is String ? defLang : '';
+
     if (languages.isNotEmpty &&
         languages[0]['code'].toString() != defaultLangCode) {
       final defIndex = languages.indexWhere(
@@ -204,13 +211,19 @@ class _AddMoreDetailsScreenState extends CloudState<AddMoreDetailsScreen>
             for (var translation in storedTranslations) {
               if (translation is Map<String, dynamic>) {
                 int? languageId = translation['language_id'];
-                List<dynamic>? value = translation['value'];
+                final rawValue = translation['value'];
+
+                List<dynamic>? value;
+                if (rawValue is List) {
+                  value = rawValue;
+                } else if (rawValue != null) {
+                  value = [rawValue];
+                } else {
+                  value = null;
+                }
 
                 if (languageId != null && value != null && value.isNotEmpty) {
-                  // Create composite key for the field
                   String compositeKey = "${field.id}_$languageId";
-
-                  // Store the value in AbstractField.fieldsData
                   AbstractField.fieldsData[compositeKey] = value;
                 }
               }
@@ -319,9 +332,12 @@ class _AddMoreDetailsScreenState extends CloudState<AddMoreDetailsScreen>
                       if (isTextboxComposite) break;
                     }
                     if (!isTextboxComposite) {
-                      nonTextboxFields[entry.key] = entry.value is List
-                          ? entry.value
-                          : [entry.value];
+                      var filteredList = entry.value
+                          .where((v) => v.toString().trim().isNotEmpty)
+                          .toList();
+                      if (filteredList.isNotEmpty) {
+                        nonTextboxFields[entry.key] = filteredList;
+                      }
                     }
                   }
 

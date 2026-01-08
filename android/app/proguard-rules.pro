@@ -76,3 +76,13 @@
     public static *** v(...);
     public static *** i(...);
 }
+# -------------------------------------------------------------------------
+# 7. RAZORPAY PAYMENT SDK (CRITICAL – FIXES R8 CRASH)
+# -------------------------------------------------------------------------
+-keep class com.razorpay.** { *; }
+-dontwarn com.razorpay.**
+
+# Razorpay uses reflection internally
+-keepclassmembers class com.razorpay.** {
+    *;
+}

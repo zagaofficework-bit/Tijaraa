@@ -14,17 +14,25 @@ class KRegisteredFields {
     CustomNumberField(),
     CustomCheckboxField(),
     CustomRadioField(),
-    CustomFileField()
+    CustomFileField(),
   ];
 
   CustomField? get(String type) {
-    CustomField? selectedField;
-    for (CustomField field in _fields) {
-      if (field.type == type) {
-        selectedField = field;
-      }
+    switch (type) {
+      case 'textbox':
+        return CustomFieldText();
+      case 'dropdown':
+        return CustomFieldDropdown();
+      case 'number':
+        return CustomNumberField();
+      case 'checkbox':
+        return CustomCheckboxField();
+      case 'radio':
+        return CustomRadioField();
+      case 'fileinput':
+        return CustomFileField();
+      default:
+        return null;
     }
-
-    return selectedField;
   }
 }

@@ -22,6 +22,12 @@ abstract class AbstractField {
   Widget createField(Map parameters);
 }
 
+List<dynamic> safeList(dynamic value) {
+  if (value == null) return [];
+  if (value is List) return value;
+  return [value]; // wrap String → List
+}
+
 class CustomTextFieldDynamic extends StatefulWidget {
   final String? value;
   final bool initController;
@@ -81,24 +87,31 @@ class CustomTextFieldDynamicState extends State<CustomTextFieldDynamic> {
 
   @override
   Widget build(BuildContext context) {
-    // Always initialize controller with the correct value for the current language/field
+    // Build composite key
     String key = widget.id.toString();
     if (widget.languageId != null) {
-      key = key + '_' + widget.languageId.toString();
+      key = '${key}_${widget.languageId}';
     }
+
+    // 🔥 SAFELY READ VALUE
     String initialValue = '';
     if (AbstractField.fieldsData.containsKey(key)) {
-      var val = AbstractField.fieldsData[key];
-      if (val is List && val.isNotEmpty) {
-        initialValue = val[0].toString();
+      final list = safeList(AbstractField.fieldsData[key]);
+      if (list.isNotEmpty) {
+        initialValue = list.first.toString();
       }
     } else if (widget.value != null) {
       initialValue = widget.value!;
     }
+
+    // Initialize controller once
     _controller ??= TextEditingController(text: initialValue);
+
+    // Sync controller if value changed
     if (_controller!.text != initialValue) {
       _controller!.text = initialValue;
     }
+
     return CustomTextFormField(
       hintText: widget.hintText,
       action: widget.action,
@@ -112,14 +125,10 @@ class CustomTextFieldDynamicState extends State<CustomTextFieldDynamic> {
       maxLine: widget.maxLine,
       minLine: widget.minLine,
       capitalization: widget.capitalization,
+
+      // 🔥 ALWAYS WRITE AS LIST
       onChange: (value) {
-        String key = widget.id.toString();
-        if (widget.languageId != null) {
-          key = key + '_' + widget.languageId.toString();
-        }
-        AbstractField.fieldsData.addAll(Map<String, dynamic>.from({
-          key: [value]
-        }));
+        AbstractField.fieldsData[key] = <String>[value];
       },
     );
   }

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:Tijaraa/ui/screens/item/add_item_screen/custom_filed_structure/custom_field.dart';
 import 'package:Tijaraa/ui/screens/item/add_item_screen/custom_filed_structure/option_item.dart';
 import 'package:Tijaraa/ui/screens/widgets/dynamic_field.dart';
@@ -15,29 +17,83 @@ class CustomFieldDropdown extends CustomField {
   String? selected;
 
   final List<OptionItem> options = List.empty(growable: true);
-
   @override
   void init() {
-    final englishValues = parameters['values'] as List;
-    final translatedValues = parameters['translated_value'] as List?;
-    final selectedValues = parameters['value'] as List? ?? [];
+    options.clear();
+    selected = null;
 
-    for (int i = 0; i < englishValues.length; ++i) {
-      final selected = selectedValues.contains(englishValues[i]);
+    List<String> flatList = [];
 
-      options.add(
-        OptionItem(value: englishValues[i], label: translatedValues?[i]),
-      );
+    List<String> normalize(dynamic value) {
+      if (value == null) return [];
 
-      if (selected) {
-        this.selected = englishValues[i];
+      // 🔥 CASE 1: JSON string like '["Petrol","Diesel"]'
+      if (value is String) {
+        final trimmed = value.trim();
+
+        if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
+          try {
+            final decoded = jsonDecode(trimmed);
+            if (decoded is List) {
+              return decoded.map((e) => e.toString()).toList();
+            }
+          } catch (_) {
+            // fall through
+          }
+        }
+
+        // Normal single string
+        return trimmed.isNotEmpty ? [trimmed] : [];
+      }
+
+      // 🔥 CASE 2: Deeply nested lists
+      while (value is List && value.length == 1) {
+        value = value.first;
+      }
+
+      if (value is List) {
+        return value.map((e) => e.toString()).toList();
+      }
+
+      return [];
+    }
+
+    // 1️⃣ First priority: translated_value (backend-resolved)
+    flatList = normalize(parameters['translated_value']);
+
+    // 2️⃣ Second priority: translations[*].value
+    if (flatList.isEmpty && parameters['translations'] is List) {
+      for (final t in parameters['translations']) {
+        final values = normalize(t['value']);
+        if (values.isNotEmpty) {
+          flatList = values;
+          break;
+        }
       }
     }
+
+    // 🔍 DEBUG (keep this temporarily)
+    debugPrint("DROPDOWN RAW DATA → $flatList");
+    debugPrint("FLAT TYPE → ${flatList.runtimeType}");
+    // 3️⃣ Build dropdown options (single-single)
+    for (final v in flatList) {
+      options.add(OptionItem(value: v, label: v));
+    }
+
+    // 4️⃣ Restore selected value (edit case)
+    final restored = normalize(parameters['value']);
+    if (restored.isNotEmpty && flatList.contains(restored.first)) {
+      selected = restored.first;
+    }
+
     super.init();
   }
 
   @override
   Widget render() {
+    // print(
+    //   "DEBUG: Rendering ${parameters['name']} dropdown. Current options count: ${options.length}",
+    // );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -95,17 +151,17 @@ class CustomFieldDropdown extends CustomField {
                   padding: EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   child: SizedBox(
                     width: double.infinity,
-                    child: DropdownButtonFormField(
-                      validator: (value) {
-                        if (parameters['required'] == 1 &&
-                            (value == null || value.toString().isEmpty)) {
-                          return 'field_required'.translate(context);
-                        }
-                        return null;
-                      },
+                    child: DropdownButtonFormField<String>(
                       value: selected,
-                      dropdownColor: context.color.secondaryColor,
+                      hint: CustomText(
+                        'select'.translate(context),
+                        color: context.color.textDefaultColor.withValues(
+                          alpha: 0.5,
+                        ),
+                        fontSize: context.font.large,
+                      ),
                       isExpanded: true,
+                      dropdownColor: context.color.secondaryColor,
                       icon: SvgPicture.asset(
                         AppIcons.downArrow,
                         colorFilter: ColorFilter.mode(
@@ -113,14 +169,13 @@ class CustomFieldDropdown extends CustomField {
                           BlendMode.srcIn,
                         ),
                       ),
-                      decoration: InputDecoration(border: InputBorder.none),
-                      //underline: SizedBox.shrink(),
+                      decoration: const InputDecoration(
+                        border: InputBorder.none,
+                      ),
                       isDense: true,
                       borderRadius: BorderRadius.circular(10),
                       style: TextStyle(
-                        color: context.color.textDefaultColor.withValues(
-                          alpha: 0.5,
-                        ),
+                        color: context.color.textDefaultColor,
                         fontSize: context.font.large,
                       ),
                       items: options.map((item) {
@@ -132,11 +187,9 @@ class CustomFieldDropdown extends CustomField {
                       onChanged: (value) {
                         if (value == null) return;
                         selected = value;
-                        print(selected);
                         update(() {});
-                        AbstractField.fieldsData.addAll({
-                          parameters['id'].toString(): [selected],
-                        });
+                        AbstractField.fieldsData[parameters['id'].toString()] =
+                            [selected];
                       },
                     ),
                   ),

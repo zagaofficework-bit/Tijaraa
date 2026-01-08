@@ -921,7 +921,8 @@ class AdDetailsScreenState extends CloudState<AdDetailsScreen> {
         children: uniqueFields.values
             .where(
               (field) =>
-                  field['value'] != null && (field['value'] as List).isNotEmpty,
+                  field['value'] != null &&
+                  (field['value'] as dynamic).isNotEmpty,
             )
             .map((field) {
               return DecoratedBox(
@@ -974,8 +975,19 @@ class AdDetailsScreenState extends CloudState<AdDetailsScreen> {
     );
   }
 
-  Widget valueContent(List<dynamic>? value) {
-    if (value == null || value.isEmpty) return SizedBox.shrink();
+  Widget valueContent(dynamic rawValue) {
+    // Check for null or empty string early
+    if (rawValue == null || (rawValue is String && rawValue.isEmpty)) {
+      return const SizedBox.shrink();
+    }
+
+    // Normalize data: If it's a String (text input), wrap it in a List.
+    // If it's already a List (checkboxes/files), keep it.
+    // This prevents the "String is not a subtype of List" crash.
+    List<dynamic> value = rawValue is List ? rawValue : [rawValue];
+
+    if (value.isEmpty) return const SizedBox.shrink();
+
     if (((value[0].toString()).startsWith("http") ||
         (value[0].toString()).startsWith("https"))) {
       if ((value[0].toString()).toLowerCase().endsWith(".pdf")) {
@@ -998,10 +1010,10 @@ class AdDetailsScreenState extends CloudState<AdDetailsScreen> {
             ),
           ),
         );
-      } else if ((value[0]).toLowerCase().endsWith(".png") ||
-          (value[0]).toLowerCase().endsWith(".jpg") ||
-          (value[0]).toLowerCase().endsWith(".jpeg") ||
-          (value[0]).toLowerCase().endsWith(".svg")) {
+      } else if ((value[0].toString().toLowerCase()).endsWith(".png") ||
+          (value[0].toString().toLowerCase()).endsWith(".jpg") ||
+          (value[0].toString().toLowerCase()).endsWith(".jpeg") ||
+          (value[0].toString().toLowerCase()).endsWith(".svg")) {
         // Render image
         return InkWell(
           onTap: () {
@@ -1013,7 +1025,7 @@ class AdDetailsScreenState extends CloudState<AdDetailsScreen> {
           child: Container(
             width: 50,
             height: 50,
-            margin: EdgeInsets.only(top: 2),
+            margin: const EdgeInsets.only(top: 2),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8),
               color: context.color.territoryColor.withValues(alpha: 0.1),
@@ -1022,7 +1034,7 @@ class AdDetailsScreenState extends CloudState<AdDetailsScreen> {
               borderRadius: BorderRadius.circular(8),
               child: UiUtils.imageType(
                 value[0],
-                color: context.color.territoryColor,
+                // color: context.color.territoryColor, // Removed color to allow original image colors
                 fit: BoxFit.cover,
               ),
             ),

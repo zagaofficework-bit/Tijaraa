@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:Tijaraa/ui/screens/item/add_item_screen/custom_filed_structure/custom_field.dart';
 import 'package:Tijaraa/ui/screens/item/add_item_screen/custom_filed_structure/option_item.dart';
 import 'package:Tijaraa/ui/screens/widgets/dynamic_field.dart';
@@ -18,38 +20,125 @@ class CustomRadioField extends CustomField {
 
   @override
   void init() {
-    final englishValues = parameters['values'] as List;
-    final translatedValues = parameters['translated_value'] as List?;
-    final selectedValue = (parameters['value'] as List?)?.firstOrNull;
+    options.clear();
+    selectedOption = null;
 
-    for (int i = 0; i < englishValues.length; ++i) {
-      final selected = englishValues[i] == selectedValue;
+    print("===== INIT CustomRadioField =====");
+    print("Raw parameters: ${parameters.toString()}");
 
-      options.add(
-        OptionItem(value: englishValues[i], label: translatedValues?[i]),
-      );
+    List<String> englishValues =
+        (parameters['values'] as List?)?.map((e) => e.toString()).toList() ??
+        [];
+    final translatedValues =
+        (parameters['translated_value'] as List?)
+            ?.map((e) => e.toString())
+            .toList() ??
+        [];
+    final currentLanguageId = 1;
 
-      if (selected) {
-        selectedOption = options.last;
+    print("Initial englishValues: $englishValues");
+    print("Initial translatedValues: $translatedValues");
+    print("FINAL englishValues TYPE → ${englishValues.runtimeType}");
+    // --- Normalize any type (List, String, JSON) to List<String> ---
+    List<String> normalize(dynamic value) {
+      if (value == null) return [];
+
+      if (value is List) {
+        while (value.length == 1 && value.first is List) value = value.first;
+        return value.map((e) => e.toString()).toList();
+      }
+
+      if (value is String) {
+        final trimmed = value.trim();
+        if (trimmed.isEmpty) return [];
+        try {
+          final decoded = jsonDecode(trimmed);
+          if (decoded is List) return decoded.map((e) => e.toString()).toList();
+          return [decoded.toString()];
+        } catch (_) {
+          return [trimmed];
+        }
+      }
+
+      return [value.toString()];
+    }
+
+    if (englishValues.isEmpty) {
+      final translations = parameters['translations'] as List? ?? [];
+      Map<String, dynamic>? targetTranslation;
+
+      // Try current language first
+      targetTranslation = translations
+          .map((t) {
+            return Map<String, dynamic>.from(t as Map);
+          })
+          .firstWhere(
+            (t) => t['language_id'].toString() == currentLanguageId.toString(),
+            orElse: () => {},
+          );
+
+      // Fallback: pick the first translation with data
+      if (targetTranslation.isEmpty ||
+          normalize(targetTranslation['value']).isEmpty) {
+        targetTranslation = translations
+            .map((t) {
+              return Map<String, dynamic>.from(t as Map);
+            })
+            .firstWhere(
+              (t) => normalize(t['value']).isNotEmpty,
+              orElse: () => {},
+            );
+      }
+
+      if (targetTranslation.isNotEmpty) {
+        englishValues = normalize(targetTranslation['value']);
+        print("Values extracted from translations: $englishValues");
       }
     }
+
+    // Restore selected value safely
+    final restored = normalize(parameters['value']);
+    final selectedValue = restored.isNotEmpty ? restored.first : null;
+    print(
+      "Restored selected value: $restored -> selectedValue: $selectedValue",
+    );
+
+    // Build options list
+    for (int i = 0; i < englishValues.length; i++) {
+      final label = i < translatedValues.length
+          ? translatedValues[i]
+          : englishValues[i];
+      final option = OptionItem(value: englishValues[i], label: label);
+      options.add(option);
+
+      if (selectedValue != null && englishValues[i] == selectedValue) {
+        selectedOption = option;
+      }
+    }
+
+    print('Radio options after parsing: $options');
+    print('Selected option after parsing: $selectedOption');
+
+    super.init();
   }
 
   @override
   Widget render() {
+    if (options.isEmpty) {
+      return Text("No options available", style: TextStyle(color: Colors.grey));
+    }
+
     return CustomValidator<String>(
-      initialValue: options.first.value,
+      initialValue: selectedOption?.value ?? options.first.value,
       builder: (FormFieldState<String> state) {
         if (validation == null) {
           validation = state;
-          Future.delayed(Duration.zero, () {
-            update(() {});
-          });
+          Future.delayed(Duration.zero, () => update(() {}));
         }
-
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // --- HEADER (Kept identical to Checkbox) ---
             Row(
               children: [
                 if (parameters['image'] != null) ...[
@@ -77,7 +166,7 @@ class CustomRadioField extends CustomField {
                       ),
                     ),
                   ),
-                  SizedBox(width: 10),
+                  const SizedBox(width: 10),
                 ],
                 CustomText(
                   parameters['translated_name'] ?? parameters['name'],
@@ -87,103 +176,122 @@ class CustomRadioField extends CustomField {
                 ),
               ],
             ),
-            SizedBox(height: 14),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Wrap(
-                  alignment: WrapAlignment.start,
-                  runAlignment: WrapAlignment.start,
-                  crossAxisAlignment: WrapCrossAlignment.start,
-                  children: List.generate(options.length, (index) {
-                    final option = options[index];
-                    return Padding(
-                      padding: EdgeInsetsDirectional.only(
-                        start: index == 0 ? 0 : 4,
-                        end: 4,
-                        bottom: 4,
-                        top: 4,
+            const SizedBox(height: 14),
+
+            // --- OPTIONS LIST (Updated for better UI) ---
+            ...List.generate(options.length, (index) {
+              final option = options[index];
+              final isSelected = selectedOption == option;
+
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 10.0),
+                child: InkWell(
+                  onTap: () {
+                    selectedOption = option;
+                    state.didChange(selectedOption?.value);
+                    AbstractField.fieldsData[parameters['id'].toString()] = [
+                      selectedOption?.value,
+                    ];
+                    if (update != null) {
+                      update(() {});
+                    }
+                    ;
+                  },
+                  borderRadius: BorderRadius.circular(12),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 14,
+                      horizontal: 16,
+                    ),
+                    decoration: BoxDecoration(
+                      // Subtle background to avoid "all white" look
+                      color: isSelected
+                          ? context.color.territoryColor.withValues(alpha: 0.05)
+                          : context.color.textDefaultColor.withValues(
+                              alpha: 0.03,
+                            ),
+                      border: Border.all(
+                        color: isSelected
+                            ? context
+                                  .color
+                                  .territoryColor // Actual color on select
+                            : context.color.borderColor.withValues(alpha: 0.6),
+                        width: isSelected ? 2 : 1.5,
                       ),
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(10),
-                        onTap: () {
-                          if (selectedOption == option) {
-                            // Deselect if already selected
-                            selectedOption = null;
-                          } else {
-                            // Select the tapped option
-                            selectedOption = option;
-                          }
-                          //selectedRadioValue = element;
-                          update(() {});
-                          state.didChange(selectedOption?.value);
-
-                          // selectedRadio.value = widget.radioValues?[index];
-                          AbstractField.fieldsData.addAll({
-                            parameters['id'].toString(): [
-                              selectedOption?.value,
-                            ],
-                          });
-
-                          print('${selectedOption?.value}');
-                        },
-                        child: Container(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      children: [
+                        // Radio Circle UI
+                        Container(
+                          width: 22,
+                          height: 22,
                           decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.transparent, // Background stays clear
                             border: Border.all(
-                              color: context.color.borderColor,
-                              width: 1.5,
-                            ),
-                            color: selectedOption == option
-                                ? context.color.territoryColor.withValues(
-                                    alpha: 0.1,
-                                  )
-                                : context.color.secondaryColor,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 10,
-                              horizontal: 15,
-                            ),
-                            child: CustomText(
-                              option.label,
-                              color: (selectedOption == option
+                              color: isSelected
                                   ? context.color.territoryColor
-                                  : context.color.textDefaultColor),
+                                  : context.color.textDefaultColor.withValues(
+                                      alpha: 0.2,
+                                    ),
+                              width: 2,
                             ),
+                          ),
+                          child: isSelected
+                              ? Center(
+                                  child: Container(
+                                    width: 12,
+                                    height: 12,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: context
+                                          .color
+                                          .territoryColor, // Inner dot
+                                    ),
+                                  ),
+                                )
+                              : null,
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: CustomText(
+                            option.label,
+                            color: isSelected
+                                ? context.color.textDefaultColor
+                                : context.color.textDefaultColor.withValues(
+                                    alpha: 0.7,
+                                  ),
+                            fontSize: context.font.large,
+                            fontWeight: isSelected
+                                ? FontWeight.w600
+                                : FontWeight.w500,
                           ),
                         ),
-                      ),
-                    );
-                  }),
-                ),
-                if (state.hasError)
-                  Padding(
-                    padding: const EdgeInsetsDirectional.symmetric(
-                      horizontal: 8.0,
-                    ),
-                    child: CustomText(
-                      state.errorText ?? "",
-                      color: context.color.error,
-                      fontSize: context.font.small,
+                      ],
                     ),
                   ),
-              ],
-            ),
+                ),
+              );
+            }),
+
+            if (state.hasError)
+              Padding(
+                padding: const EdgeInsetsDirectional.only(top: 5, start: 8.0),
+                child: CustomText(
+                  state.errorText ?? "",
+                  color: context.color.error,
+                  fontSize: context.font.small,
+                ),
+              ),
           ],
         );
       },
       validator: (String? value) {
-        // Check if the field is required
-
-        // Check if the value is null or empty (no selection made)
         if (parameters['required'] == 1 && selectedOption == null) {
-          return "please_select_option".translate(
-            context,
-          ); // Return the error message if no selection
+          return "please_select_option".translate(context);
         }
-
-        // If a valid selection is made, return null to indicate no error
         return null;
       },
     );

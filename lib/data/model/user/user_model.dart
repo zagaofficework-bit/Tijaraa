@@ -16,6 +16,9 @@ class UserModel {
   String? profile;
   String? token;
   String? updatedAt;
+  String? dob;
+  String? nationality;
+  String? gender;
 
   // Changed these to bool to match Laravel $casts
   bool? isVerified;
@@ -43,6 +46,9 @@ class UserModel {
     this.isVerified,
     this.isEmailVerified,
     this.isPhoneVerified,
+    this.dob,
+    this.nationality,
+    this.gender,
   });
 
   UserModel.fromJson(Map<String, dynamic> json) {
@@ -92,6 +98,10 @@ class UserModel {
         : (json['show_personal_details'] is bool
               ? (json['show_personal_details'] ? 1 : 0)
               : int.tryParse(json['show_personal_details'].toString()));
+    
+    dob = json['dob'];
+    nationality = json['nationality'];
+    gender = json['gender'];
   }
 
   Map<String, dynamic> toJson() {
@@ -116,7 +126,15 @@ class UserModel {
     data['is_verified'] = isVerified;
     data['is_email_verified'] = isEmailVerified;
     data['is_phone_verified'] = isPhoneVerified;
+    data['dob'] = dob;
+    data['nationality'] = nationality;
+    data['gender'] = gender;
     return data;
+  }
+
+  @override
+  String toString() {
+    return 'UserModel(address: $address, createdAt: $createdAt, customertotalpost: $customerTotalPost, email: $email, fcmId: $fcmId, firebaseId: $firebaseId, id: $id, isActive: $isActive, isProfileCompleted: $isProfileCompleted, type: $type, mobile: $mobile, name: $name, profile: $profile, token: $token, updatedAt: $updatedAt,notification:$notification,isPersonalDetailShow:$isPersonalDetailShow,isVerified:$isVerified)';
   }
 }
 

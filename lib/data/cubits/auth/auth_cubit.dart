@@ -79,6 +79,9 @@ class AuthCubit extends Cubit<AuthState> {
     String? mobile,
     String? countryCode,
     int? personalDetail,
+    String? dob,
+    String? nationality,
+    String? gender,
   }) async {
     try {
       emit(const AuthProgress());
@@ -93,6 +96,9 @@ class AuthCubit extends Cubit<AuthState> {
         mobile: mobile,
         countryCode: countryCode,
         personalDetail: personalDetail,
+        dob: dob,
+        nationality: nationality,
+        gender: gender,
       );
 
       final response = await Api.post(
@@ -125,6 +131,9 @@ class AuthCubit extends Cubit<AuthState> {
     String? mobile,
     String? countryCode,
     int? personalDetail,
+    String? dob,
+    String? nationality,
+    String? gender,
   }) async {
     final parameters = {
       Api.name: name ?? '',
@@ -135,6 +144,9 @@ class AuthCubit extends Cubit<AuthState> {
       Api.mobile: mobile,
       Api.countryCode: countryCode,
       Api.personalDetail: personalDetail,
+      Api.dob: dob,
+      Api.nationality: nationality,
+      Api.gender: gender,
     };
 
     if (fileUserimg != null) {

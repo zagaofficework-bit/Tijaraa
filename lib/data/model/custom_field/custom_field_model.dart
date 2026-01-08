@@ -1,7 +1,7 @@
 class CustomFieldModel {
   int? id;
   String? name;
-  List? value;
+  dynamic value;
   String? type;
   String? image;
   int? required;
@@ -9,7 +9,7 @@ class CustomFieldModel {
   int? maxLength;
   dynamic values;
   String? translatedName;
-  List? translatedValue;
+  dynamic translatedValue;
   List<dynamic>? translations;
 
   CustomFieldModel({
@@ -46,18 +46,21 @@ class CustomFieldModel {
 
   factory CustomFieldModel.fromMap(Map<String, dynamic> map) {
     return CustomFieldModel(
-      id: map['id'] as int,
-      name: map['name'] as String,
-      type: map['type'] as String,
-      values: map['values'] as dynamic,
+      id: map['id'] is String
+          ? int.tryParse(map['id'])
+          : map['id'], // Safer ID parsing
+      name: map['name']?.toString(), // Use toString() to avoid null/type errors
+      type: map['type']?.toString(),
+      values: map['values'],
       image: map['image'],
       required: map['required'],
       maxLength: map['max_length'],
       minLength: map['min_length'],
-      value: map['value'],
-      translatedName: map['translated_name'] as String?,
-      translatedValue: map['translated_value'] as List?,
-      translations: map['translations'] as List<dynamic>?,
+      value: map['value'], // Now handles String or List perfectly
+      translatedName: map['translated_name']?.toString(),
+      translatedValue:
+          map['translated_value'], // Now handles String or List perfectly
+      translations: map['translations'] is List ? map['translations'] : null,
     );
   }
 

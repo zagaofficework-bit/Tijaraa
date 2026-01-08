@@ -64,8 +64,8 @@ class _MyItemTabState extends CloudState<MyItemTab> {
   }
 
   void setReferenceOfCubit() {
-    myAdsCubitReference[widget.getItemsWithStatus!] = context
-        .read<FetchMyItemsCubit>();
+    myAdsCubitReference[widget.getItemsWithStatus ?? ""] =
+        context.read<FetchMyItemsCubit>();
   }
 
   ListView shimmerEffect() {

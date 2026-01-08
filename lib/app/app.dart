@@ -3,7 +3,6 @@ import 'package:Tijaraa/main.dart';
 import 'package:Tijaraa/ui/screens/widgets/errors/something_went_wrong.dart';
 import 'package:Tijaraa/utils/constant.dart';
 import 'package:Tijaraa/utils/hive_keys.dart';
-import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -88,11 +87,6 @@ Future<void> _initializeFirebase() async {
   } else {
     await Firebase.initializeApp();
   }
-
-  await FirebaseAppCheck.instance.activate(
-    appleProvider: AppleProvider.appAttestWithDeviceCheckFallback,
-    androidProvider: AndroidProvider.playIntegrity,
-  );
 }
 
 /// Initializes Hive and opens all required boxes

@@ -15,59 +15,91 @@ class ItemRepository {
     List<File>? otherImages,
   ) async {
     try {
+      // 1. Create a deep copy and clone any existing MultipartFiles
       Map<String, dynamic> parameters = {};
-      parameters.addAll(itemDetails);
 
-      MultipartFile image = await MultipartFile.fromFile(
+      itemDetails.forEach((key, value) {
+        if (value is MultipartFile) {
+          // This is the crucial fix for custom_field_files
+          parameters[key] = value.clone();
+        } else {
+          parameters[key] = value;
+        }
+      });
+
+      // 2. Add the main image
+      parameters[Api.image] = await MultipartFile.fromFile(
         mainImage.path,
         filename: path.basename(mainImage.path),
       );
 
+      // 3. Add gallery images
       if (otherImages != null && otherImages.isNotEmpty) {
-        List<Future<MultipartFile>> futures = otherImages.map((imageFile) {
-          return MultipartFile.fromFile(
-            imageFile.path,
-            filename: path.basename(imageFile.path),
-          );
-        }).toList();
-
-        List<MultipartFile> galleryImages = await Future.wait(futures);
-
-        if (galleryImages.isNotEmpty) {
-          parameters["gallery_images"] = galleryImages;
-        }
+        parameters["gallery_images"] = await Future.wait(
+          otherImages.map(
+            (file) => MultipartFile.fromFile(
+              file.path,
+              filename: path.basename(file.path),
+            ),
+          ),
+        );
       }
 
-      parameters.addAll({Api.image: image, Api.showOnlyToPremium: 1});
+      parameters[Api.showOnlyToPremium] = 1;
 
+      // 4. Send Request
       Map<String, dynamic> response = await Api.post(
         url: Api.addItemApi,
         parameter: parameters,
       );
+      if (response['error'] == false) {
+        final rawData = response['data'];
 
-      return ItemModel.fromJson(response['data'][0]);
+        // Check if data is a List and has at least one item
+        if (rawData is List && rawData.isNotEmpty) {
+          // Pass the FIRST MAP in the list to your model
+          return ItemModel.fromJson(rawData.first);
+        } else if (rawData is Map<String, dynamic>) {
+          // If it's a direct Map, use it as is
+          return ItemModel.fromJson(rawData);
+        } else {
+          throw "Unexpected data format from server";
+        }
+      } else {
+        throw response['message'] ?? "Failed to add item";
+      }
+      final rawData = response['data'];
+      if (rawData == null || (rawData is List && rawData.isEmpty)) {
+        throw Exception("API returned empty data");
+      }
+
+      final itemJson = rawData is List ? rawData.first : rawData;
+      return ItemModel.fromJson(itemJson);
     } catch (e) {
       rethrow;
     }
   }
 
+  /// FETCH FEATURED ITEMS
   Future<DataOutput<ItemModel>> fetchMyFeaturedItems({int? page}) async {
     try {
       Map<String, dynamic> parameters = {
         Api.status: "featured",
-        Api.page: page,
+        if (page != null) Api.page: page,
       };
 
       Map<String, dynamic> response = await Api.get(
         url: Api.getMyItemApi,
         queryParameters: parameters,
       );
-      List<ItemModel> itemList = (response['data']['data'] as List)
-          .map((element) => ItemModel.fromJson(element))
+
+      final rawData = response['data']?['data'] ?? [];
+      List<ItemModel> itemList = (rawData as List)
+          .map((e) => ItemModel.fromJson(e))
           .toList();
 
       return DataOutput(
-        total: response['data']['total'] ?? 0,
+        total: response['data']?['total'] ?? itemList.length,
         modelList: itemList,
       );
     } catch (e) {
@@ -75,34 +107,32 @@ class ItemRepository {
     }
   }
 
-  // Update this specific method in ItemRepository
+  /// FETCH MY ITEMS (SAFE VERSION)
   Future<DataOutput<ItemModel>> fetchMyItems({
     String? getItemsWithStatus,
     int? page,
-    int? id, // 1. Add this parameter
+    int? id,
   }) async {
     try {
       Map<String, dynamic> parameters = {
-        if (getItemsWithStatus != null) Api.status: getItemsWithStatus,
+        if (getItemsWithStatus != null && getItemsWithStatus.isNotEmpty)
+          Api.status: getItemsWithStatus,
         if (page != null) Api.page: page,
-        if (id != null) Api.id: id, // 2. Add id to the request parameters
+        if (id != null) Api.id: id,
       };
-
-      if (parameters[Api.status] == "") parameters.remove(Api.status);
 
       Map<String, dynamic> response = await Api.get(
         url: Api.getMyItemApi,
         queryParameters: parameters,
       );
 
-      var data = response['data']['data'] ?? response['data'];
-
-      List<ItemModel> itemList = (data as List)
-          .map((element) => ItemModel.fromJson(element))
+      final rawData = response['data']?['data'] ?? [];
+      List<ItemModel> itemList = (rawData as List)
+          .map((e) => ItemModel.fromJson(e))
           .toList();
 
       return DataOutput(
-        total: response['data']['total'] ?? itemList.length,
+        total: response['data']?['total'] ?? itemList.length,
         modelList: itemList,
       );
     } catch (e) {
@@ -110,6 +140,7 @@ class ItemRepository {
     }
   }
 
+  /// FETCH ITEM BY ITEM ID
   Future<DataOutput<ItemModel>> fetchItemFromItemId(int id) async {
     Map<String, dynamic> parameters = {Api.id: id};
 
@@ -118,13 +149,15 @@ class ItemRepository {
       queryParameters: parameters,
     );
 
-    List<ItemModel> modelList = (response['data'] as List)
+    final rawData = response['data'] ?? [];
+    List<ItemModel> modelList = (rawData as List)
         .map((e) => ItemModel.fromJson(e))
         .toList();
 
     return DataOutput(total: modelList.length, modelList: modelList);
   }
 
+  /// FETCH ITEM BY SLUG
   Future<DataOutput<ItemModel>> fetchItemFromItemSlug(String slug) async {
     Map<String, dynamic> parameters = {Api.slug: slug};
 
@@ -133,13 +166,15 @@ class ItemRepository {
       queryParameters: parameters,
     );
 
-    List<ItemModel> modelList = (response['data']['data'] as List)
+    final rawData = response['data']?['data'] ?? [];
+    List<ItemModel> modelList = (rawData as List)
         .map((e) => ItemModel.fromJson(e))
         .toList();
 
     return DataOutput(total: modelList.length, modelList: modelList);
   }
 
+  /// CHANGE ITEM STATUS
   Future<Map> changeMyItemStatus({
     required int itemId,
     required String status,
@@ -156,6 +191,7 @@ class ItemRepository {
     return response;
   }
 
+  /// CREATE FEATURED ADS
   Future<Map> createFeaturedAds({required int itemId}) async {
     Map response = await Api.post(
       url: Api.makeItemFeaturedApi,
@@ -164,6 +200,7 @@ class ItemRepository {
     return response;
   }
 
+  /// FETCH ITEMS BY CATEGORY
   Future<DataOutput<ItemModel>> fetchItemFromCatId({
     required int categoryId,
     required int page,
@@ -193,26 +230,23 @@ class ItemRepository {
       parameters.addAll(location.toApiJson());
     }
 
-    if (search != null) {
-      parameters[Api.search] = search;
-    }
-
-    if (sortBy != null) {
-      parameters[Api.sortBy] = sortBy;
-    }
+    if (search != null) parameters[Api.search] = search;
+    if (sortBy != null) parameters[Api.sortBy] = sortBy;
 
     Map<String, dynamic> response = await Api.get(
       url: Api.getItemApi,
       queryParameters: parameters,
     );
 
-    List<ItemModel> items = (response['data']['data'] as List)
+    final rawData = response['data']?['data'] ?? [];
+    List<ItemModel> items = (rawData as List)
         .map((e) => ItemModel.fromJson(e))
         .toList();
 
-    return DataOutput(total: response['data']['total'] ?? 0, modelList: items);
+    return DataOutput(total: response['data']?['total'] ?? 0, modelList: items);
   }
 
+  /// FETCH POPULAR ITEMS
   Future<DataOutput<ItemModel>> fetchPopularItems({
     required String sortBy,
     required int page,
@@ -229,11 +263,12 @@ class ItemRepository {
       queryParameters: parameters,
     );
 
-    List<ItemModel> items = (response['data']['data'] as List)
+    final rawData = response['data']?['data'] ?? [];
+    List<ItemModel> items = (rawData as List)
         .map((e) => ItemModel.fromJson(e))
         .toList();
 
-    return DataOutput(total: response['data']['total'] ?? 0, modelList: items);
+    return DataOutput(total: response['data']?['total'] ?? 0, modelList: items);
   }
 
   Future<ItemModel> editItem(
@@ -241,30 +276,33 @@ class ItemRepository {
     File? mainImage,
     List<File>? otherImages,
   ) async {
+    // Use the same cloning logic here
     Map<String, dynamic> parameters = {};
-    parameters.addAll(itemDetails);
+    itemDetails.forEach((key, value) {
+      if (value is MultipartFile) {
+        parameters[key] = value.clone(); // Fix for reused files
+      } else {
+        parameters[key] = value;
+      }
+    });
 
     if (mainImage != null) {
-      MultipartFile image = await MultipartFile.fromFile(
+      parameters[Api.image] = await MultipartFile.fromFile(
         mainImage.path,
         filename: path.basename(mainImage.path),
       );
-      parameters[Api.image] = image;
     }
 
     if (otherImages != null && otherImages.isNotEmpty) {
-      List<Future<MultipartFile>> futures = otherImages.map((imageFile) {
-        return MultipartFile.fromFile(
-          imageFile.path,
-          filename: path.basename(imageFile.path),
-        );
-      }).toList();
-
-      List<MultipartFile> galleryImages = await Future.wait(futures);
-
-      if (galleryImages.isNotEmpty) {
-        parameters[Api.galleryImages] = galleryImages;
-      }
+      final List<MultipartFile> galleryMultipartFiles = await Future.wait(
+        otherImages.map(
+          (file) => MultipartFile.fromFile(
+            file.path,
+            filename: path.basename(file.path),
+          ),
+        ),
+      );
+      parameters[Api.galleryImages] = galleryMultipartFiles;
     }
 
     if (itemDetails.containsKey('translations')) {
@@ -280,17 +318,26 @@ class ItemRepository {
       parameter: parameters,
     );
 
-    return ItemModel.fromJson(response['data'][0]);
+    final rawData = response['data'];
+    if (rawData == null || (rawData is List && rawData.isEmpty)) {
+      throw Exception("API returned empty data");
+    }
+
+    final itemJson = rawData is List ? rawData.first : rawData;
+    return ItemModel.fromJson(itemJson);
   }
 
+  /// DELETE ITEM
   Future<void> deleteItem(int id) async {
-    await Api.post(url: Api.deleteItemApi, parameter: {Api.id: id});
+    await Api.post(url: Api.deleteItemApi, parameter: {Api.itemId: id});
   }
 
+  /// ITEM TOTAL CLICK
   Future<void> itemTotalClick(int id) async {
     await Api.post(url: Api.setItemTotalClickApi, parameter: {Api.itemId: id});
   }
 
+  /// MAKE AN OFFER
   Future<Map> makeAnOfferItem(int id, double? amount) async {
     Map response = await Api.post(
       url: Api.itemOfferApi,
@@ -299,6 +346,7 @@ class ItemRepository {
     return response;
   }
 
+  /// SEARCH ITEM
   Future<DataOutput<ItemModel>> searchItem(
     String query,
     ItemFilterModel? filter, {
@@ -322,10 +370,11 @@ class ItemRepository {
       queryParameters: parameters,
     );
 
-    List<ItemModel> items = (response['data']['data'] as List)
+    final rawData = response['data']?['data'] ?? [];
+    List<ItemModel> items = (rawData as List)
         .map((e) => ItemModel.fromJson(e))
         .toList();
 
-    return DataOutput(total: response['data']['total'] ?? 0, modelList: items);
+    return DataOutput(total: response['data']?['total'] ?? 0, modelList: items);
   }
 }

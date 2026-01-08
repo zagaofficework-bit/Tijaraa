@@ -1,36 +1,51 @@
 import 'dart:io';
-import 'package:path/path.dart' as path;
-import 'package:dio/dio.dart';
+
 import 'package:Tijaraa/data/model/data_output.dart';
 import 'package:Tijaraa/data/model/subscription/subscription_package_model.dart';
 import 'package:Tijaraa/utils/api.dart';
+import 'package:dio/dio.dart';
+import 'package:path/path.dart' as path;
 
 class SubscriptionRepository {
-  Future<DataOutput<SubscriptionPackageModel>> getSubscriptionPacakges(
-      {required String type}) async {
+  Future<DataOutput<SubscriptionPackageModel>> getSubscriptionPacakges({
+    required String type,
+  }) async {
     Map<String, dynamic> response = await Api.get(
-        url: Api.getPackageApi,
-        queryParameters: {
-          if (Platform.isIOS) Api.platform: "ios",
-          Api.type: type
-        });
+      url: Api.getPackageApi,
+      queryParameters: {
+        if (Platform.isIOS) Api.platform: "ios",
+        Api.type: type,
+      },
+    );
 
-    List<SubscriptionPackageModel> modelList = (response['data'] as List)
+    // FIX: Reach into data -> packages
+    // We use ?. to be safe and ?? [] to ensure we don't map a null value
+    List rawList = response['data']?['packages'] ?? [];
+
+    List<SubscriptionPackageModel> modelList = rawList
         .map((element) => SubscriptionPackageModel.fromJson(element))
         .toList();
+
     List<SubscriptionPackageModel> combineList = [];
-    List<SubscriptionPackageModel> activeModelList =
-        modelList.where((item) => item.isActive == true).toList();
+
+    // Use .where with ?? false to avoid null safety issues during comparison
+    List<SubscriptionPackageModel> activeModelList = modelList
+        .where((item) => item.isActive == true)
+        .toList();
     combineList.addAll(activeModelList);
-    List<SubscriptionPackageModel> inactiveModelList =
-        modelList.where((item) => item.isActive == false).toList();
+
+    List<SubscriptionPackageModel> inactiveModelList = modelList
+        .where((item) => item.isActive == false)
+        .toList();
     combineList.addAll(inactiveModelList);
 
     return DataOutput(total: combineList.length, modelList: combineList);
   }
 
   Future<void> subscribeToPackage(
-      int packageId, bool isPackageAvailable) async {
+    int packageId,
+    bool isPackageAvailable,
+  ) async {
     try {
       Map<String, dynamic> parameters = {
         Api.packageId: packageId,
@@ -43,15 +58,18 @@ class SubscriptionRepository {
     }
   }
 
-  Future updateBankTransfer(
-      {required String paymentTransactionId,
-      required File paymentReceipt}) async {
+  Future updateBankTransfer({
+    required String paymentTransactionId,
+    required File paymentReceipt,
+  }) async {
     try {
       Map<String, dynamic> parameters = {};
       parameters[Api.paymentTransectionId] = paymentTransactionId;
 
-      MultipartFile image = await MultipartFile.fromFile(paymentReceipt.path,
-          filename: path.basename(paymentReceipt.path));
+      MultipartFile image = await MultipartFile.fromFile(
+        paymentReceipt.path,
+        filename: path.basename(paymentReceipt.path),
+      );
 
       parameters[Api.paymentReceipt] = image;
 

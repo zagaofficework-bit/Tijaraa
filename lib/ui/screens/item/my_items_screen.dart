@@ -1,3 +1,4 @@
+import 'package:Tijaraa/data/cubits/item/fetch_my_item_cubit.dart';
 import 'package:Tijaraa/ui/screens/item/my_item_tab_screen.dart';
 import 'package:Tijaraa/ui/theme/theme.dart';
 import 'package:Tijaraa/utils/constant.dart';
@@ -5,6 +6,7 @@ import 'package:Tijaraa/utils/custom_text.dart';
 import 'package:Tijaraa/utils/extensions/extensions.dart';
 import 'package:Tijaraa/utils/ui_utils.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 String selectItemStatus = "";
 
@@ -98,7 +100,10 @@ class MyItemState extends State<ItemsScreen> with TickerProviderStateMixin {
                     Map section = sections[index];
 
                     ///Here we pass both but logic will be in the cubit
-                    return MyItemTab(getItemsWithStatus: section['status']);
+                    return BlocProvider(
+                      create: (context) => FetchMyItemsCubit(),
+                      child: MyItemTab(getItemsWithStatus: section['status']),
+                    );
                   }),
                 ),
               ),

@@ -100,9 +100,7 @@ class _ConfirmLocationScreenState extends CloudState<ConfirmLocationScreen> {
           builder: (context, child) {
             return BlocConsumer<ManageItemCubit, ManageItemState>(
               listener: (context, state) {
-                if (state is ManageItemInProgress) {
-                  LoadingWidgets.showLoader(context);
-                } else if (state is ManageItemSuccess) {
+                if (state is ManageItemSuccess) {
                   LoadingWidgets.hideLoader(context);
                   myAdsCubitReference[getCloudData("edit_from")]?.editAds(
                     state.model,
@@ -114,11 +112,14 @@ class _ConfirmLocationScreenState extends CloudState<ConfirmLocationScreen> {
                     arguments: {'model': state.model, 'isEdit': widget.isEdit},
                   );
                 } else if (state is ManageItemFail) {
+                  LoadingWidgets.hideLoader(context);
+
+                  // ✅ Change this to show the real error from the API
                   HelperUtils.showSnackBarMessage(
                     context,
-                    'defaultErrorMsg'.translate(context),
+                    state.error
+                        .toString(), // This will now say "No Active Package found..."
                   );
-                  LoadingWidgets.hideLoader(context);
                 }
               },
               builder: (context, state) {
@@ -138,10 +139,13 @@ class _ConfirmLocationScreenState extends CloudState<ConfirmLocationScreen> {
                   onPressed: () async {
                     if (context.read<ManageItemCubit>().state
                         is ManageItemInProgress) {
-                      return; // Prevent multiple API calls
+                      return;
                     }
 
                     try {
+                      // ✅ ADD THIS LINE
+                      LoadingWidgets.showLoader(context);
+
                       Map<String, dynamic> cloudData =
                           getCloudData("with_more_details") ?? {};
 
@@ -150,10 +154,12 @@ class _ConfirmLocationScreenState extends CloudState<ConfirmLocationScreen> {
                         cloudData['latitude'] = _location.latitude;
                       if (_location.longitude != null)
                         cloudData['longitude'] = _location.longitude;
+
                       cloudData['country'] = _location.country?.canonical;
                       cloudData['city'] = _location.city?.canonical;
                       cloudData['state'] = _location.state?.canonical;
                       cloudData['area'] = _location.area?.canonical;
+
                       if (widget.isEdit ?? false) {
                         context.read<ManageItemCubit>().manage(
                           ManageItemType.edit,
@@ -161,7 +167,6 @@ class _ConfirmLocationScreenState extends CloudState<ConfirmLocationScreen> {
                           widget.mainImage,
                           widget.otherImage!,
                         );
-                        return;
                       } else {
                         context.read<ManageItemCubit>().manage(
                           ManageItemType.add,
@@ -169,9 +174,10 @@ class _ConfirmLocationScreenState extends CloudState<ConfirmLocationScreen> {
                           widget.mainImage!,
                           widget.otherImage!,
                         );
-                        return;
                       }
                     } catch (e, st) {
+                      // ✅ ALSO HIDE LOADER ON ERROR
+                      LoadingWidgets.hideLoader(context);
                       log('$e', name: 'Add Item');
                       log('$st', name: 'Add Item');
                     }

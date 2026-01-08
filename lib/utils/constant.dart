@@ -11,7 +11,8 @@ const String svgPath = 'assets/svg/';
 class Constant {
   static const String appName = AppSettings.applicationName;
   static const String packageName = AppSettings.packageName;
-  static String playStoreUrl = "https://play.google.com/store/apps/details?id=com.tijaraa.app";
+  static String playStoreUrl =
+      "https://play.google.com/store/apps/details?id=com.tijaraa.app";
   static String appStoreUrl = "";
   static String iOSAppId = '';
 
@@ -33,7 +34,8 @@ class Constant {
   static String bannerAdIdAndroid = 'ca-app-pub-2933415255715410/5547118291';
   static String bannerAdIdIOS = "";
 
-  static String interstitialAdIdAndroid = 'ca-app-pub-2933415255715410/5547118291';
+  static String interstitialAdIdAndroid =
+      'ca-app-pub-2933415255715410/5547118291';
   static String interstitialAdIdIOS = '';
 
   static String nativeAdIdAndroid = 'ca-app-pub-2933415255715410/4234036625';
@@ -53,16 +55,13 @@ class Constant {
   static String otpServiceProvider = "";
   static String mapProvider = "";
 
-  // Hey, don’t remove this or set it to null.
-  // It’s used as the default location in multiple spots, and weird things *will* happen without it.
-  // Feel free to tweak the values, just don’t nuke the whole thing.
   static LeafLocation defaultLocation = LeafLocation(
-    city: LocalizedString(canonical: 'National Paint'),
+    city: LocalizedString(canonical: 'Jumeirah'),
     state: LocalizedString(canonical: 'Dubai'),
     country: LocalizedString(canonical: 'UAE'),
     radius: minRadius,
-    latitude: 23.232639,
-    longitude: 69.6415341,
+    latitude: 25.2069604,
+    longitude: 55.2474974,
   );
 
   static int otpTimeOutSecond = AppSettings.otpTimeOutSecond; //otp time out

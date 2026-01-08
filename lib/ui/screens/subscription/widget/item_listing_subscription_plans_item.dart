@@ -33,9 +33,20 @@ class _ItemListingSubscriptionPlansItemState
     extends State<ItemListingSubscriptionPlansItem> {
   String? _selectedGateway;
 
-  @override
-  void initState() {
-    super.initState();
+  bool get isActive => widget.model.isActive ?? false;
+
+  bool get hasPurchasedPackage =>
+      widget.model.userPurchasedPackages != null &&
+      widget.model.userPurchasedPackages!.isNotEmpty;
+
+  double get finalPrice => widget.model.finalPrice ?? 0;
+
+  double get discount => widget.model.discount ?? 0;
+
+  /// 🔧 Fix: Block free package if already used
+  bool get isFreePackageBlocked {
+    return (widget.model.finalPrice == 0) &&
+        (widget.model.isFreePackageUsed ?? false);
   }
 
   @override
@@ -53,7 +64,7 @@ class _ItemListingSubscriptionPlansItemState
           child: Stack(
             alignment: Alignment.topCenter,
             children: [
-              if (widget.model.isActive!)
+              if (isActive)
                 ClipPath(
                   clipper: CapShapeClipper(),
                   child: Container(
@@ -76,7 +87,7 @@ class _ItemListingSubscriptionPlansItemState
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(15.0),
                   side: BorderSide(
-                    color: widget.model.isActive!
+                    color: isActive
                         ? context.color.territoryColor
                         : context.color.secondaryColor,
                     width: 1.5,
@@ -85,16 +96,16 @@ class _ItemListingSubscriptionPlansItemState
                 elevation: 0,
                 margin: EdgeInsets.fromLTRB(14, 33, 14, 0),
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start, //temp
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     SizedBox(height: 50),
                     ClipPath(
-                      clipper: HexagonClipper(),
+                      // clipper: HexagonClipper(),
                       child: Container(
-                        width: 100,
-                        height: 110,
-                        padding: EdgeInsets.all(30),
-                        color: context.color.primaryColor,
+                        // width: 100,
+                        // height: 110,
+                        // padding: EdgeInsets.all(30),
+                        // color: context.color.primaryColor,
                         child: UiUtils.imageType(
                           widget.model.icon!,
                           fit: BoxFit.contain,
@@ -102,19 +113,17 @@ class _ItemListingSubscriptionPlansItemState
                       ),
                     ),
                     SizedBox(height: 18),
-                    activeAdsData(
-                      widget.model.isActive! && widget.model.finalPrice! > 0,
-                    ),
+                    activeAdsData(isActive && finalPrice > 0),
                     const Spacer(),
                     CustomText(
-                      widget.model.finalPrice! > 0
+                      finalPrice > 0
                           ? widget.model.finalPrice!.currencyFormat
                           : "free".translate(context),
                       fontSize: context.font.xxLarge,
                       fontWeight: FontWeight.bold,
                       color: context.color.textDefaultColor,
                     ),
-                    if (widget.model.discount! > 0)
+                    if (discount > 0)
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 8.0),
                         child: Row(
@@ -166,7 +175,7 @@ class _ItemListingSubscriptionPlansItemState
             if (isActiveAds)
               checkmarkPoint(
                 context,
-                "${widget.model.userPurchasedPackages![0].remainingItemLimit}/${widget.model.limit == Constant.itemLimitUnlimited ? "unlimitedLbl".translate(context) : widget.model.limit.toString()}\t${(widget.model.type == Constant.itemTypeListing ? "adsListing" : "featuredAdsListing").translate(context)}",
+                "${hasPurchasedPackage ? widget.model.userPurchasedPackages![0].remainingItemLimit : "0"}/${widget.model.limit == Constant.itemLimitUnlimited ? "unlimitedLbl".translate(context) : widget.model.limit.toString()}\t${(widget.model.type == Constant.itemTypeListing ? "adsListing" : "featuredAdsListing").translate(context)}",
               )
             else
               checkmarkPoint(
@@ -177,7 +186,7 @@ class _ItemListingSubscriptionPlansItemState
           if (isActiveAds)
             checkmarkPoint(
               context,
-              "${widget.model.userPurchasedPackages![0].remainingDays}/${widget.model.duration.toString()}\t${"days".translate(context)}",
+              "${hasPurchasedPackage ? widget.model.userPurchasedPackages![0].remainingDays : "0"}/${widget.model.duration.toString()}\t${"days".translate(context)}",
             )
           else
             checkmarkPoint(
@@ -205,20 +214,16 @@ class _ItemListingSubscriptionPlansItemState
   }
 
   SingleChildRenderObjectWidget bottomWidget() {
-    if (widget.model.isActive! &&
-        widget.model.finalPrice! > 0 &&
-        widget.model.userPurchasedPackages != null &&
+    if (isActive &&
+        finalPrice > 0 &&
+        hasPurchasedPackage &&
         widget.model.userPurchasedPackages![0].endDate != null) {
       DateTime dateTime = DateTime.parse(
         widget.model.userPurchasedPackages![0].endDate!,
       );
       String formattedDate = intl.DateFormat.yMMMMd().format(dateTime);
       return Padding(
-        padding: EdgeInsetsDirectional.only(
-          bottom: 15.0,
-          start: 15,
-          end: 15,
-        ), // EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+        padding: EdgeInsetsDirectional.only(bottom: 15.0, start: 15, end: 15),
         child: CustomText(
           "${"yourSubscriptionWillExpireOn".translate(context)} $formattedDate",
         ),
@@ -235,7 +240,6 @@ class _ItemListingSubscriptionPlansItemState
         spacing: 8,
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
-        // width: context.screenWidth * 0.55,
         children: [
           UiUtils.getSvg(AppIcons.active_mark),
           Expanded(child: CustomText(text, textAlign: TextAlign.start)),
@@ -252,14 +256,17 @@ class _ItemListingSubscriptionPlansItemState
       iosCallback: (String productId, String packageId) {
         widget.inAppPurchaseManager!.buy(productId, packageId);
       },
-      btnTitle: widget.model.isActive ?? false
+      btnTitle: isActive
           ? "purchased".translate(context)
+          : isFreePackageBlocked
+          ? "freePackageAlreadyUsed".translate(context)
           : "purchaseThisPackage".translate(context),
       changePaymentGateway: (String selectedPaymentGateway) {
         setState(() {
           _selectedGateway = selectedPaymentGateway;
         });
       },
+      isDisabled: isFreePackageBlocked, // note: handled inside PlanHelper
     );
   }
 }

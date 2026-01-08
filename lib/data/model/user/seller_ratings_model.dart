@@ -6,8 +6,9 @@ class SellerRatingsModel {
 
   SellerRatingsModel.fromJson(Map<String, dynamic> json) {
     seller = json['seller'] != null ? Seller.fromJson(json['seller']) : null;
-    ratings =
-        json['ratings'] != null ? Ratings.fromJson(json['ratings']) : null;
+    ratings = json['ratings'] != null
+        ? Ratings.fromJson(json['ratings'])
+        : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -28,7 +29,7 @@ class Seller {
   String? email;
   String? mobile;
   String? profile;
-  int? isVerified;
+  int? isVerified; // Keep as int? but fix the parsing
   String? createdAt;
   double? averageRating;
 
@@ -49,12 +50,26 @@ class Seller {
     email = json['email'];
     mobile = json['mobile'];
     profile = json['profile'];
-    isVerified = json['is_verified'];
+
+    // ✅ FIX: Handle both bool (false/true) and int (0/1)
+    if (json['is_verified'] is bool) {
+      isVerified = (json['is_verified'] as bool) ? 1 : 0;
+    } else {
+      isVerified = json['is_verified'];
+    }
+
     createdAt = json['created_at'];
-    if (json['average_rating'] is int) {
+
+    // ✅ FIX: Handle null average_rating safely
+    if (json['average_rating'] == null) {
+      averageRating = 0.0;
+    } else if (json['average_rating'] is int) {
       averageRating = (json['average_rating'] as int).toDouble();
     } else if (json['average_rating'] is double) {
       averageRating = json['average_rating'];
+    } else {
+      // If it comes as a String "4.5"
+      averageRating = double.tryParse(json['average_rating'].toString()) ?? 0.0;
     }
   }
 
@@ -77,11 +92,7 @@ class Ratings {
   List<UserRatings>? userRatings;
   int? total;
 
-  Ratings({
-    this.currentPage,
-    this.userRatings,
-    this.total,
-  });
+  Ratings({this.currentPage, this.userRatings, this.total});
 
   Ratings.fromJson(Map<String, dynamic> json) {
     currentPage = json['current_page'];
@@ -139,7 +150,10 @@ class UserRatings {
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
     buyer = json['buyer'] != null ? Buyer.fromJson(json['buyer']) : null;
-    if (json['ratings'] is int) {
+    // Inside UserRatings.fromJson
+    if (json['ratings'] == null) {
+      ratings = 0.0;
+    } else if (json['ratings'] is int) {
       ratings = (json['ratings'] as int).toDouble();
     } else if (json['ratings'] is double) {
       ratings = json['ratings'];
@@ -191,17 +205,12 @@ class UserRatings {
   }
 }
 
-
 class Buyer {
   int? id;
   String? name;
   String? profile;
 
-  Buyer({
-    this.id,
-    this.name,
-    this.profile,
-  });
+  Buyer({this.id, this.name, this.profile});
 
   Buyer.fromJson(Map<String, dynamic> json) {
     id = json['id'];

@@ -38,7 +38,7 @@ class _FeaturedAdsSubscriptionPlansItemState
   Widget mainUi() {
     return Container(
       height: MediaQuery.of(context).size.height,
-      margin: EdgeInsets.symmetric(horizontal: 18, vertical: 24),
+      margin: const EdgeInsets.symmetric(horizontal: 18, vertical: 24),
       child: Card(
         color: context.color.secondaryColor,
         shape: RoundedRectangleBorder(
@@ -46,15 +46,10 @@ class _FeaturedAdsSubscriptionPlansItemState
         ),
         elevation: 0,
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.start, //temp
           children: [
-            SizedBox(
-              height: 50,
-            ),
+            const SizedBox(height: 50),
             UiUtils.getSvg(AppIcons.featuredAdsIcon),
-            SizedBox(
-              height: 35,
-            ),
+            const SizedBox(height: 35),
             CustomText(
               "featureAd".translate(context),
               fontWeight: FontWeight.w600,
@@ -62,11 +57,10 @@ class _FeaturedAdsSubscriptionPlansItemState
             ),
             Expanded(
               child: ListView.builder(
-                  padding: EdgeInsets.symmetric(horizontal: 18),
-                  itemBuilder: (context, index) {
-                    return itemData(index);
-                  },
-                  itemCount: widget.modelList.length),
+                padding: const EdgeInsets.symmetric(horizontal: 18),
+                itemCount: widget.modelList.length,
+                itemBuilder: (context, index) => itemData(index),
+              ),
             ),
             if (selectedIndex != null) payButtonWidget(),
           ],
@@ -87,52 +81,62 @@ class _FeaturedAdsSubscriptionPlansItemState
   }
 
   Widget itemData(int index) {
+    final plan = widget.modelList[index];
+    final bool isFreePackageBlocked =
+        (plan.finalPrice == 0) && (plan.isFreePackageUsed ?? false);
+    final bool isSelected = index == selectedIndex;
+
     return Padding(
       padding: const EdgeInsets.only(top: 7.0),
       child: Stack(
         alignment: Alignment.topLeft,
         children: [
-          if (widget.modelList[index].isActive!)
+          if (plan.isActive!)
             Padding(
-              padding: EdgeInsetsDirectional.only(start: 13.0),
+              padding: const EdgeInsetsDirectional.only(start: 13.0),
               child: ClipPath(
                 clipper: CapShapeClipper(),
                 child: Container(
                   color: context.color.territoryColor,
                   width: MediaQuery.of(context).size.width / 3,
                   height: 17,
-                  padding: EdgeInsets.only(top: 3),
-                  child: CustomText('activePlanLbl'.translate(context),
-                      color: context.color.secondaryColor,
-                      textAlign: TextAlign.center,
-                      fontWeight: FontWeight.w500,
-                      fontSize: 12),
+                  padding: const EdgeInsets.only(top: 3),
+                  child: CustomText(
+                    'activePlanLbl'.translate(context),
+                    color: context.color.secondaryColor,
+                    textAlign: TextAlign.center,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 12,
+                  ),
                 ),
               ),
             ),
           InkWell(
-            onTap: !widget.modelList[index].isActive!
-                ? () {
+            onTap: plan.isActive! || isFreePackageBlocked
+                ? null
+                : () {
                     setState(() {
                       selectedIndex = index;
                     });
-                  }
-                : null,
+                  },
             child: Container(
-              margin: EdgeInsets.only(top: 17),
-              padding: EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+              margin: const EdgeInsets.only(top: 17),
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
               decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16.0),
-                  border: Border.all(
-                      color: widget.modelList[index].isActive! ||
-                              index == selectedIndex
-                          ? context.color.territoryColor
-                          : context.color.textDefaultColor
-                              .withValues(alpha: 0.13),
-                      width: 1.5)),
-              child: !widget.modelList[index].isActive!
-                  ? adsWidget(index)
-                  : activeAdsWidget(index),
+                borderRadius: BorderRadius.circular(16.0),
+                border: Border.all(
+                  color: plan.isActive! || isSelected
+                      ? context.color.territoryColor
+                      : context.color.textDefaultColor.withValues(alpha: 0.13),
+                  width: 1.5,
+                ),
+                color: isFreePackageBlocked
+                    ? context.color.textDefaultColor.withValues(alpha: 0.05)
+                    : null,
+              ),
+              child: plan.isActive!
+                  ? activeAdsWidget(index)
+                  : adsWidget(index, isFreePackageBlocked),
             ),
           ),
         ],
@@ -140,131 +144,109 @@ class _FeaturedAdsSubscriptionPlansItemState
     );
   }
 
-  Widget adsWidget(int index) {
+  Widget adsWidget(int index, bool isDisabled) {
+    final plan = widget.modelList[index];
     return Row(
-      spacing: 10,
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      mainAxisSize: MainAxisSize.min,
       children: [
         Expanded(
           child: Column(
-            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               CustomText(
-                widget.modelList[index].name!,
+                plan.name!,
                 firstUpperCaseWidget: true,
                 fontWeight: FontWeight.w600,
                 fontSize: context.font.large,
+                color: isDisabled
+                    ? context.color.textDefaultColor.withAlpha(100)
+                    : null,
               ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  CustomText(
-                    '${widget.modelList[index].limit == Constant.itemLimitUnlimited ? "unlimitedLbl".translate(context) : widget.modelList[index].limit.toString()}\t${"adsLbl".translate(context)}\t\t·\t\t',
-                    overflow: TextOverflow.ellipsis,
-                    softWrap: true,
-                    color:
-                        context.color.textDefaultColor.withValues(alpha: 0.5),
-                  ),
-                  Flexible(
-                    child: CustomText(
-                      '${widget.modelList[index].duration.toString()}\t${"days".translate(context)}',
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      softWrap: true,
-                      color: context.color.textDefaultColor.withAlpha(50),
-                    ),
-                  ),
-                ],
+              const SizedBox(height: 5),
+              CustomText(
+                '${plan.limit == Constant.itemLimitUnlimited ? "unlimitedLbl".translate(context) : plan.limit}\t${"adsLbl".translate(context)} · ${plan.duration}\t${"days".translate(context)}',
+                color: isDisabled
+                    ? context.color.textDefaultColor.withAlpha(100)
+                    : context.color.textDefaultColor.withValues(alpha: 0.5),
               ),
             ],
           ),
         ),
         CustomText(
-          widget.modelList[index].finalPrice! > 0
-              ? widget.modelList[index].finalPrice!.currencyFormat
+          plan.finalPrice! > 0
+              ? plan.finalPrice!.currencyFormat
               : "free".translate(context),
           fontSize: 20,
           fontWeight: FontWeight.bold,
+          color: isDisabled
+              ? context.color.textDefaultColor.withAlpha(100)
+              : null,
         ),
       ],
     );
   }
 
   Widget activeAdsWidget(int index) {
+    final plan = widget.modelList[index];
+
     return Row(
-      spacing: 10,
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      mainAxisSize: MainAxisSize.min,
       children: [
         Expanded(
           child: Column(
-            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               CustomText(
-                widget.modelList[index].name!,
+                plan.name!,
                 firstUpperCaseWidget: true,
                 fontWeight: FontWeight.w600,
                 fontSize: context.font.large,
               ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text.rich(
-                    TextSpan(
-                      text: widget.modelList[index].limit ==
-                              Constant.itemLimitUnlimited
-                          ? "${"unlimitedLbl".translate(context)}\t${"adsLbl".translate(context)}\t\t·\t\t"
-                          : '',
-                      style: TextStyle(
-                        color: context.color.textDefaultColor
-                            .withValues(alpha: 0.5),
-                      ),
-                      children: textRichChildNotForUnlimited(
-                          widget.modelList[index].limit ==
-                              Constant.itemLimitUnlimited,
-                          '${widget.modelList[index].userPurchasedPackages![0].remainingItemLimit}',
-                          '/${widget.modelList[index].limit.toString()}\t${"adsLbl".translate(context)}\t\t·\t\t'),
-                    ),
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                    softWrap: true,
-                  ),
-                  Flexible(
-                    child: Text.rich(
-                      TextSpan(
-                        text: widget.modelList[index].duration ==
-                                Constant.itemLimitUnlimited
-                            ? "${"unlimitedLbl".translate(context)}\t${"days".translate(context)}"
-                            : '',
-                        style: TextStyle(
-                          color: context.color.textDefaultColor
-                              .withValues(alpha: 0.5),
-                        ),
-                        children: textRichChildNotForUnlimited(
-                          widget.modelList[index].limit ==
-                              Constant.itemLimitUnlimited,
-                          '${widget.modelList[index].userPurchasedPackages![0].remainingDays}',
-                          '/${widget.modelList[index].duration.toString()}\t${"days".translate(context)}',
-                        ),
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      softWrap: true,
+              const SizedBox(height: 5),
+              Text.rich(
+                TextSpan(
+                  text: plan.limit == Constant.itemLimitUnlimited
+                      ? "${"unlimitedLbl".translate(context)} ${"adsLbl".translate(context)} · "
+                      : '',
+                  style: TextStyle(
+                    color: context.color.textDefaultColor.withValues(
+                      alpha: 0.5,
                     ),
                   ),
-                ],
+                  children: textRichChildNotForUnlimited(
+                    plan.limit == Constant.itemLimitUnlimited,
+                    '${plan.userPurchasedPackages![0].remainingItemLimit}',
+                    '/${plan.limit} ${"adsLbl".translate(context)} · ',
+                  ),
+                ),
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+              ),
+              Text.rich(
+                TextSpan(
+                  text: plan.duration == Constant.itemLimitUnlimited
+                      ? "${"unlimitedLbl".translate(context)} ${"days".translate(context)}"
+                      : '',
+                  style: TextStyle(
+                    color: context.color.textDefaultColor.withValues(
+                      alpha: 0.5,
+                    ),
+                  ),
+                  children: textRichChildNotForUnlimited(
+                    plan.duration == Constant.itemLimitUnlimited,
+                    '${plan.userPurchasedPackages![0].remainingDays}',
+                    '/${plan.duration} ${"days".translate(context)}',
+                  ),
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
             ],
           ),
         ),
         CustomText(
-          widget.modelList[index].finalPrice! > 0
-              ? "${Constant.currencySymbol}${widget.modelList[index].finalPrice.toString()}"
+          plan.finalPrice! > 0
+              ? "${Constant.currencySymbol}${plan.finalPrice}"
               : "free".translate(context),
           fontSize: 20,
           fontWeight: FontWeight.bold,
@@ -274,28 +256,46 @@ class _FeaturedAdsSubscriptionPlansItemState
   }
 
   List<InlineSpan>? textRichChildNotForUnlimited(
-      bool isUnlimited, String text1, String text2) {
+    bool isUnlimited,
+    String text1,
+    String text2,
+  ) {
     if (isUnlimited) return null;
     return [
       TextSpan(
         text: text1,
         style: TextStyle(color: context.color.textDefaultColor),
       ),
-      TextSpan(
-        text: text2,
-      ),
+      TextSpan(text: text2),
     ];
   }
 
   Widget payButtonWidget() {
+    if (selectedIndex == null) return const SizedBox.shrink();
+
+    final plan = widget.modelList[selectedIndex!];
+
+    final bool isFreePackageBlocked =
+        (plan.finalPrice == 0) && (plan.isFreePackageUsed ?? false);
+
     return PlanHelper().purchaseButtonWidget(
-        context, widget.modelList[selectedIndex!], _selectedGateway,
-        iosCallback: (String productId, String packageId) {
-      widget.inAppPurchaseManager!.buy(productId, packageId);
-    }, changePaymentGateway: (String selectedPaymentGateway) {
-      setState(() {
-        _selectedGateway = selectedPaymentGateway;
-      });
-    });
+      context,
+      plan,
+      _selectedGateway,
+      iosCallback: (String productId, String packageId) {
+        widget.inAppPurchaseManager!.buy(productId, packageId);
+      },
+      changePaymentGateway: (String selectedPaymentGateway) {
+        setState(() {
+          _selectedGateway = selectedPaymentGateway;
+        });
+      },
+      isDisabled: isFreePackageBlocked || plan.isActive!,
+      btnTitle: plan.isActive!
+          ? "purchased".translate(context)
+          : isFreePackageBlocked
+          ? "freePackageAlreadyUsed".translate(context)
+          : null,
+    );
   }
 }

@@ -189,6 +189,19 @@ class _AddItemDetailsState extends CloudState<AddItemDetails>
     setState(() {});
   }
 
+  void _proceedToLocation(List<File>? images) {
+    addDataToCloud("with_more_details");
+    Navigator.pushNamed(
+      context,
+      Routes.confirmLocationScreen,
+      arguments: {
+        "isEdit": widget.isEdit,
+        "mainImage": _pickTitleImage.pickedFile,
+        "otherImage": images,
+      },
+    );
+  }
+
   String generateSlug(String title) {
     // Convert the title to lowercase
     String slug = title.toLowerCase();
@@ -253,8 +266,11 @@ class _AddItemDetailsState extends CloudState<AddItemDetails>
     );
     // Initialize controllers for each language
     for (var lang in languages) {
-      adTitleControllers[lang['code']] ??= TextEditingController();
-      adDescriptionControllers[lang['code']] ??= TextEditingController();
+      final code = lang['code'];
+      if (code != null) {
+        adTitleControllers[code] ??= TextEditingController();
+        adDescriptionControllers[code] ??= TextEditingController();
+      }
     }
 
     // --- Slug auto-generation from English title ---
@@ -375,6 +391,7 @@ class _AddItemDetailsState extends CloudState<AddItemDetails>
                   outerPadding: EdgeInsets.fromLTRB(20, 0, 20, 0),
                   onPressed: () {
                     if (_formKey.currentState?.validate() ?? false) {
+                      // 1. Declare galleryImages ONCE at the top of the scope
                       List<File>? galleryImages = mixedItemImageList
                           .where(
                             (element) => element != null && element is File,
@@ -427,31 +444,48 @@ class _AddItemDetailsState extends CloudState<AddItemDetails>
                         );
                         return;
                       }
+                      print("DEBUG: defaultLangCode is: '$defaultLangCode'");
+                      print(
+                        "DEBUG: Available controller keys: ${adTitleControllers.keys.toList()}",
+                      );
+                      // ... inside onPressed
                       addCloudData("item_details", {
-                        "name": adTitleControllers[defaultLangCode]!.text,
+                        "name": adTitleControllers[defaultLangCode]?.text ?? "",
                         "slug": adSlugController.text,
                         "description":
-                            adDescriptionControllers[defaultLangCode]!.text,
+                            adDescriptionControllers[defaultLangCode]?.text ??
+                            "",
+
+                        // Safe check for category_id
                         if (widget.isEdit != true)
-                          "category_id": selectedCategoryList.last,
+                          "category_id": (selectedCategoryList.isNotEmpty)
+                              ? selectedCategoryList.last
+                              : "",
+
                         if (widget.isEdit ?? false) "id": item?.id,
                         "price": adPriceController.text,
                         "contact": adPhoneNumberController.text,
                         "video_link": adAdditionalDetailsController.text,
+
                         if (widget.isEdit ?? false)
                           "delete_item_image_id": deleteItemImageList.join(','),
+
+                        // Safe check for all_category_ids
                         "all_category_ids": (widget.isEdit ?? false)
-                            ? item!.allCategoryIds
-                            : selectedCategoryList.join(','),
+                            ? (item?.allCategoryIds ??
+                                  "") // Use ?. and ?? instead of !
+                            : (selectedCategoryList.join(',')),
+
                         if (isJobCategory())
                           "min_salary": minSalaryController.text,
                         if (isJobCategory())
                           "max_salary": maxSalaryController.text,
+
                         "translations": json.encode(translations),
                       });
-
                       screenStack++;
-                      if (context.read<FetchCustomFieldsCubit>().isEmpty()!) {
+                      if (context.read<FetchCustomFieldsCubit>().isEmpty() ==
+                          true) {
                         addDataToCloud("with_more_details");
 
                         Navigator.pushNamed(

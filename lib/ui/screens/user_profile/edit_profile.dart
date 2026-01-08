@@ -67,6 +67,9 @@ class UserProfileScreenState extends State<UserProfileScreen> {
   late final TextEditingController nameController = TextEditingController();
   late final TextEditingController emailController = TextEditingController();
   final TextEditingController addressController = TextEditingController();
+  late final TextEditingController dobController = TextEditingController();
+  late final TextEditingController nationalityController = TextEditingController();
+  String? selectedGender;
   dynamic size;
   dynamic city, _state, country;
   double? latitude, longitude;
@@ -98,6 +101,9 @@ class UserProfileScreenState extends State<UserProfileScreen> {
     nameController.text = (HiveUtils.getUserDetails().name) ?? "";
     emailController.text = HiveUtils.getUserDetails().email ?? "";
     addressController.text = HiveUtils.getUserDetails().address ?? "";
+    dobController.text = HiveUtils.getUserDetails().dob ?? "";
+    nationalityController.text = HiveUtils.getUserDetails().nationality ?? "";
+    selectedGender = HiveUtils.getUserDetails().gender;
 
     if (isFromLogin) {
       isNotificationsEnabled = true;
@@ -137,6 +143,8 @@ class UserProfileScreenState extends State<UserProfileScreen> {
     nameController.dispose();
     emailController.dispose();
     addressController.dispose();
+    dobController.dispose();
+    nationalityController.dispose();
     super.dispose();
   }
 
@@ -282,6 +290,88 @@ class UserProfileScreenState extends State<UserProfileScreen> {
                                                     .territoryColor,
                                               ),
                                             ),
+                                    ),
+                                  ],
+                                ),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    CustomText("dob".translate(context)),
+                                    const SizedBox(height: 10),
+                                    GestureDetector(
+                                      onTap: () async {
+                                        DateTime? pickedDate =
+                                            await showDatePicker(
+                                              context: context,
+                                              initialDate: DateTime.now(),
+                                              firstDate: DateTime(1900),
+                                              lastDate: DateTime.now(),
+                                            );
+                                        if (pickedDate != null) {
+                                          setState(() {
+                                            dobController.text =
+                                                "${pickedDate.year}-${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.day.toString().padLeft(2, '0')}";
+                                          });
+                                        }
+                                      },
+                                      child: AbsorbPointer(
+                                        child: CustomTextFormField(
+                                          controller: dobController,
+                                          isReadOnly: true,
+                                          hintText: "YYYY-MM-DD",
+                                          fillColor:
+                                              context.color.secondaryColor,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                buildTextField(
+                                  context,
+                                  title: "nationality",
+                                  controller: nationalityController,
+                                ),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    CustomText("gender".translate(context)),
+                                    const SizedBox(height: 10),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 10,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: context.color.secondaryColor,
+                                        borderRadius: BorderRadius.circular(
+                                          10,
+                                        ),
+                                        border: Border.all(
+                                          color: context.color.textLightColor
+                                              .withValues(alpha: 0.3),
+                                          width: 1.5,
+                                        ),
+                                      ),
+                                      child: DropdownButtonHideUnderline(
+                                        child: DropdownButton<String>(
+                                          value: selectedGender,
+                                          isExpanded: true,
+                                          dropdownColor:
+                                              context.color.secondaryColor,
+                                          items: ["Male", "Female", "Other"]
+                                              .map(
+                                                (e) => DropdownMenuItem(
+                                                  value: e,
+                                                  child: CustomText(e),
+                                                ),
+                                              )
+                                              .toList(),
+                                          onChanged: (val) {
+                                            setState(() {
+                                              selectedGender = val;
+                                            });
+                                          },
+                                        ),
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -797,6 +887,9 @@ class UserProfileScreenState extends State<UserProfileScreen> {
         notification: isNotificationsEnabled == true ? "1" : "0",
         countryCode: countryCode,
         personalDetail: isPersonalDetailShow == true ? 1 : 0,
+        dob: dobController.text,
+        nationality: nationalityController.text,
+        gender: selectedGender,
       );
 
       Future.delayed(Duration.zero, () {

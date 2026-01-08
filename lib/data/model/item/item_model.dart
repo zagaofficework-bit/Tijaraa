@@ -161,9 +161,12 @@ class ItemModel {
     isPurchased = json['is_purchased'];
     isEditedByAdmin = json['is_edited_by_admin'];
     adminEditReason = json['admin_edit_reason'];
-    translations = json['translations'];
+    // Updated safe version:
+    translations = (json['translations'] is List) ? json['translations'] : null;
+    allTranslatedCustomFields = (json['all_translated_custom_fields'] is List)
+        ? json['all_translated_custom_fields']
+        : null;
     translatedItem = json['translated_item'] ?? {};
-    allTranslatedCustomFields = json['all_translated_custom_fields'];
     if (json['review'] != null) {
       review = <UserRatings>[];
       json['review'].forEach((v) {

@@ -79,10 +79,11 @@ class CategoryCard extends StatelessWidget {
                 padding: EdgeInsets.all(10.0),
                 child: CustomText(
                   title,
-                  maxLines: 2,
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.center,
                   color: context.color.textColorDark,
-                  fontSize: context.font.normal,
+                  fontSize: context.font.small,
                 ),
               ),
             ),

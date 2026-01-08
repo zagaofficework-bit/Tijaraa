@@ -28,6 +28,7 @@ class PlanHelper {
     Function? changePaymentGateway,
     // Function? setupPaymentGateway,
     String? btnTitle,
+    required bool isDisabled,
   }) {
     return BlocConsumer<GetPaymentIntentCubit, GetPaymentIntentState>(
       bloc: mainContext.read<GetPaymentIntentCubit>(),
@@ -80,6 +81,11 @@ class PlanHelper {
                           }
                         });
                       }
+                    } else if (plan.isFreePackageUsed ?? false) {
+                      HelperUtils.showSnackBarMessage(
+                        context,
+                        "freePackageAlreadyUsed".translate(context),
+                      );
                     } else {
                       mainContext
                           .read<AssignFreePackageCubit>()

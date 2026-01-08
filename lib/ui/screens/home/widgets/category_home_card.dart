@@ -28,6 +28,7 @@ class CategoryHomeCard extends StatelessWidget {
     }
     return SizedBox(
       width: 70,
+
       child: GestureDetector(
         onTap: onTap,
         child: ClipRRect(

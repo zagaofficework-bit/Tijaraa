@@ -240,6 +240,9 @@ class Api {
   static String cityId = "city_id";
   static String countryCode = "country_code";
   static String personalDetail = "show_personal_details";
+  static String dob = "dob";
+  static String nationality = "nationality";
+  static String gender = "gender";
   static String soldTo = "sold_to";
   static String ratings = "ratings";
   static String review = "review";
